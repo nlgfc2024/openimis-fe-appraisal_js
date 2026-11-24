@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import LockOpenIcon from "@material-ui/icons/LockOpen";
 import RefreshIcon from "@material-ui/icons/Refresh";
+import ReturnIcon from "@material-ui/icons/AssignmentReturn";
 import {
   Form,
   Helmet,
@@ -20,14 +21,19 @@ import {
   APPRAISAL_QUERY,
   DECIDE_ELIGIBILITY_MUTATION,
   REOPEN_APPRAISAL_MUTATION,
+  RESUBMIT_APPRAISAL_MUTATION,
+  RETURN_APPRAISAL_MUTATION,
+  REVIEW_DOCUMENT_MUTATION,
   SCORE_APPRAISALS_MUTATION,
 } from "../actions";
 import AnswerItemDialog from "../components/AnswerItemDialog";
 import AppraisalHeadPanel from "../components/AppraisalHeadPanel";
 import AppraisalTabPanel from "../components/AppraisalTabPanel";
+import DocumentRejectDialog from "../components/DocumentRejectDialog";
 import ReopenDialog from "../components/ReopenDialog";
+import { ResubmitDialog, ReturnDialog } from "../components/ReturnDialogs";
 import ScoreDialog from "../components/ScoreDialog";
-import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_VIEW } from "../constants";
+import { APPRAISAL_MODULE_NAME, DOCUMENT_REJECTED, DOCUMENT_VERIFIED, RIGHT_APPRAISAL_VIEW } from "../constants";
 import useAppraisalStyles from "../styles";
 import { isAppraisalConfigured } from "../util/configuration";
 import { refusalCode } from "../util/appraisal";
@@ -42,11 +48,17 @@ function AppraisalPage() {
   const [answering, setAnswering] = useState(null);
   const [answerError, setAnswerError] = useState(null);
   const [decisionError, setDecisionError] = useState(null);
-  const [reopening, setReopening] = useState(false);
-  const [reopenError, setReopenError] = useState(null);
   const [scoring, setScoring] = useState(null);
   const [scoreError, setScoreError] = useState(null);
   const [rescoreError, setRescoreError] = useState(null);
+  const [rejecting, setRejecting] = useState(null);
+  const [reviewError, setReviewError] = useState(null);
+  const [returning, setReturning] = useState(false);
+  const [returnError, setReturnError] = useState(null);
+  const [resubmitting, setResubmitting] = useState(false);
+  const [resubmitError, setResubmitError] = useState(null);
+  const [reopening, setReopening] = useState(false);
+  const [reopenError, setReopenError] = useState(null);
 
   const { isLoading, error, data, refetch } = useGraphqlQuery(
     APPRAISAL_QUERY,
@@ -55,18 +67,24 @@ function AppraisalPage() {
   );
   const answerMutation = useGraphqlMutation(ANSWER_ITEM_MUTATION);
   const decideMutation = useGraphqlMutation(DECIDE_ELIGIBILITY_MUTATION);
-  const reopenMutation = useGraphqlMutation(REOPEN_APPRAISAL_MUTATION);
   const scoreMutation = useGraphqlMutation(ANSWER_SCORE_MUTATION);
   const rescoreMutation = useGraphqlMutation(SCORE_APPRAISALS_MUTATION);
+  const reviewMutation = useGraphqlMutation(REVIEW_DOCUMENT_MUTATION);
+  const returnMutation = useGraphqlMutation(RETURN_APPRAISAL_MUTATION);
+  const resubmitMutation = useGraphqlMutation(RESUBMIT_APPRAISAL_MUTATION);
+  const reopenMutation = useGraphqlMutation(REOPEN_APPRAISAL_MUTATION);
 
   if (!rights.includes(RIGHT_APPRAISAL_VIEW) || !isAppraisalConfigured(modulesManager)) return null;
   const appraisal = data?.appraisal?.edges?.[0]?.node;
   const applicant = `${appraisal?.individual?.firstName ?? ""} ${appraisal?.individual?.lastName ?? ""}`.trim();
   // What the user may do now comes from the backend, worked out by the same rules as the mutations
   const canScreen = !!appraisal?.canScreen;
-  const canReopen = !!appraisal?.canReopen;
   const canScore = !!appraisal?.canScore;
   const canRescore = !!appraisal?.canRescore;
+  const canReviewDocuments = !!appraisal?.canReviewDocuments;
+  const canReturn = !!appraisal?.canReturn;
+  const canReopen = !!appraisal?.canReopen;
+  const canResubmit = !!appraisal?.canResubmit;
   const refusal = (err) => {
     const code = refusalCode(err);
     return code ? formatMessage(`refusal.${code}`) : String(err?.message || err);
@@ -135,22 +153,68 @@ function AppraisalPage() {
     }
   };
 
-  const reopen = async (reason) => {
-    setReopenError(null);
+  const submit = async (mutation, variables, setError, close) => {
+    setError(null);
     try {
-      await reopenMutation.mutate({
-        id: appraisal.uuid,
-        reason,
-        clientMutationLabel: formatMessageWithValues("mutation.reopen", { applicant }),
-      });
-      setReopening(false);
+      await mutation.mutate(variables);
+      close();
       refetch();
     } catch (err) {
-      setReopenError(refusal(err));
+      setError(refusal(err));
     }
   };
 
+  const reviewDocument = (document, status, comment = "") =>
+    submit(
+      reviewMutation,
+      {
+        appraisalId: appraisal.uuid,
+        documentId: document.documentId,
+        status,
+        comment,
+        clientMutationLabel: formatMessageWithValues("mutation.reviewDocument", {
+          status: formatMessage(`documentStatus.${status}`),
+          document: document.label,
+          applicant,
+        }),
+      },
+      setReviewError,
+      () => setRejecting(null),
+    );
+
+  const saveReturn = (details) =>
+    submit(
+      returnMutation,
+      {
+        id: appraisal.uuid,
+        reason: details.reason,
+        actionRequired: details.actionRequired,
+        clientMutationLabel: formatMessageWithValues("mutation.return", { applicant }),
+      },
+      setReturnError,
+      () => setReturning(false),
+    );
+
+  const saveResubmit = (note) =>
+    submit(
+      resubmitMutation,
+      { id: appraisal.uuid, note, clientMutationLabel: formatMessageWithValues("mutation.resubmit", { applicant }) },
+      setResubmitError,
+      () => setResubmitting(false),
+    );
+
+  const saveReopen = (reason) =>
+    submit(
+      reopenMutation,
+      { id: appraisal.uuid, reason, clientMutationLabel: formatMessageWithValues("mutation.reopen", { applicant }) },
+      setReopenError,
+      () => setReopening(false),
+    );
+
   const actions = [{ doIt: refetch, icon: <RefreshIcon />, tooltip: formatMessage("action.refresh") }];
+  if (canReturn) {
+    actions.unshift({ doIt: () => setReturning(true), icon: <ReturnIcon />, tooltip: formatMessage("action.return") });
+  }
   if (canReopen) {
     actions.unshift({
       doIt: () => setReopening(true),
@@ -184,6 +248,16 @@ function AppraisalPage() {
           onScore={setScoring}
           onRescore={rescore}
           rescoring={rescoreMutation.isLoading}
+          canReviewDocuments={canReviewDocuments}
+          reviewingDocument={reviewMutation.isLoading}
+          reviewError={rejecting ? null : reviewError}
+          onVerifyDocument={(document) => reviewDocument(document, DOCUMENT_VERIFIED)}
+          onRejectDocument={(document) => {
+            setReviewError(null);
+            setRejecting(document);
+          }}
+          canResubmit={canResubmit}
+          onResubmit={() => setResubmitting(true)}
         />
       )}
       {rescoreError && <ProgressOrError error={rescoreError} />}
@@ -209,6 +283,37 @@ function AppraisalPage() {
         }}
         onSave={saveScore}
       />
+      <DocumentRejectDialog
+        document={rejecting}
+        saving={reviewMutation.isLoading}
+        error={reviewError}
+        onCancel={() => {
+          setRejecting(null);
+          setReviewError(null);
+        }}
+        onSave={(comment) => reviewDocument(rejecting, DOCUMENT_REJECTED, comment)}
+      />
+      <ReturnDialog
+        open={returning}
+        applicant={applicant}
+        saving={returnMutation.isLoading}
+        error={returnError}
+        onCancel={() => {
+          setReturning(false);
+          setReturnError(null);
+        }}
+        onSave={saveReturn}
+      />
+      <ResubmitDialog
+        open={resubmitting}
+        saving={resubmitMutation.isLoading}
+        error={resubmitError}
+        onCancel={() => {
+          setResubmitting(false);
+          setResubmitError(null);
+        }}
+        onSave={saveResubmit}
+      />
       <ReopenDialog
         open={reopening}
         applicant={applicant}
@@ -219,7 +324,7 @@ function AppraisalPage() {
           setReopening(false);
           setReopenError(null);
         }}
-        onSave={reopen}
+        onSave={saveReopen}
       />
     </div>
   );

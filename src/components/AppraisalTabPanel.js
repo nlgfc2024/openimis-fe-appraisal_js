@@ -5,18 +5,20 @@ import { PublishedComponent, useModulesManager, useTranslations } from "@openimi
 import {
   APPRAISAL_MODULE_NAME,
   APPRAISAL_TABS,
-  REF_APPLICANT_DOCUMENTS,
   REF_KOBO_APPLICATIONS,
   TAB_APPLICATION,
   TAB_CHECKLIST,
   TAB_DOCUMENTS,
   TAB_HISTORY,
+  TAB_RETURNS,
   TAB_SCORE,
 } from "../constants";
 import useAppraisalStyles from "../styles";
 import AppraisalHistory from "./AppraisalHistory";
 import DecisionPanel from "./DecisionPanel";
+import DocumentCheck from "./DocumentCheck";
 import EligibilityChecklist from "./EligibilityChecklist";
+import { ReturnedBanner, ReturnsTable } from "./ReturnsPanel";
 import ScoreTable from "./ScoreTable";
 
 function AppraisalTabPanel({
@@ -31,6 +33,13 @@ function AppraisalTabPanel({
   onScore,
   onRescore,
   rescoring,
+  canReviewDocuments,
+  reviewingDocument,
+  reviewError,
+  onVerifyDocument,
+  onRejectDocument,
+  canResubmit,
+  onResubmit,
 }) {
   const classes = useAppraisalStyles();
   const modulesManager = useModulesManager();
@@ -42,6 +51,7 @@ function AppraisalTabPanel({
 
   return (
     <Paper className={classes.paper}>
+      <ReturnedBanner appraisal={appraisal} canResubmit={canResubmit} onResubmit={onResubmit} />
       <Grid container className={`${classes.tableTitle} ${classes.tabs}`}>
         <Tabs value={tab} onChange={(e, value) => setTab(value)} TabIndicatorProps={{ style: { display: "none" } }}>
           {APPRAISAL_TABS.map((value) => (
@@ -60,6 +70,9 @@ function AppraisalTabPanel({
           <DecisionPanel
             appraisal={appraisal}
             items={items}
+            documents={appraisal.documents}
+            documentsComplete={appraisal.documentsComplete}
+            onOpenDocuments={() => setTab(TAB_DOCUMENTS)}
             canDecide={canScreen}
             saving={deciding}
             error={decisionError}
@@ -84,11 +97,17 @@ function AppraisalTabPanel({
         </Box>
       )}
       {tab === TAB_DOCUMENTS && (
-        <Box className={classes.section}>
-          <PublishedComponent pubRef={REF_APPLICANT_DOCUMENTS} individualId={individualId} />
-        </Box>
+        <DocumentCheck
+          appraisal={appraisal}
+          canReview={canReviewDocuments}
+          saving={reviewingDocument}
+          error={reviewError}
+          onVerify={onVerifyDocument}
+          onReject={onRejectDocument}
+        />
       )}
-      {tab === TAB_HISTORY && <AppraisalHistory history={appraisal.history} items={items} />}
+      {tab === TAB_RETURNS && <ReturnsTable returns={appraisal.returns} />}
+      {tab === TAB_HISTORY && <AppraisalHistory history={appraisal.history} items={items} documents={appraisal.documents} />}
     </Paper>
   );
 }

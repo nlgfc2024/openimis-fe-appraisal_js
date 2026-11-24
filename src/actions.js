@@ -64,7 +64,7 @@ export const APPRAISAL_QUERY = `query AppraisalDetail($id: ID) {
   appraisal(id: $id, first: 1) {
     edges { node {
       id uuid programme round stage status eligibility score rank koboId submissionId jsonExt dateUpdated
-      canScreen canDecide canReopen canScore canRescore
+      canScreen canDecide canReopen canScore canRescore canReviewDocuments canReturn canResubmit
       decisionPreview { decision ineligible pending unanswered changed problem }
       individual { id uuid firstName lastName dob jsonExt }
       items(kind: "${ITEM_KIND_ELIGIBILITY}") {
@@ -75,6 +75,14 @@ export const APPRAISAL_QUERY = `query AppraisalDetail($id: ID) {
         id uuid key label systemPoints basis basisChanged officerPoints officerValue evidence comment decidedBy
         decidedAt
         points maxPoints isOverridden
+      }
+      documentsComplete
+      documents {
+        documentType label required documentId filename downloadStatus status comment reviewedBy reviewedAt
+      }
+      returns {
+        id uuid stage previousStatus reason actionRequired requestedBy returnedAt resubmittedBy resubmittedAt
+        resubmissionNote isOpen
       }
       history { date user subject changes }
     } }
@@ -113,4 +121,16 @@ export const CLOSE_SHORTLIST_MUTATION = `mutation CloseShortlist($input: CloseSh
 
 export const SHORTLIST_MUTATION = `mutation ShortlistAppraisals($input: ShortlistAppraisalsMutationInput!) {
   shortlistAppraisals(input: $input) { internalId clientMutationId }
+}`;
+
+export const REVIEW_DOCUMENT_MUTATION = `mutation ReviewApplicantDocument($input: ReviewApplicantDocumentMutationInput!) {
+  reviewApplicantDocument(input: $input) { internalId clientMutationId }
+}`;
+
+export const RETURN_APPRAISAL_MUTATION = `mutation ReturnAppraisal($input: ReturnAppraisalMutationInput!) {
+  returnAppraisal(input: $input) { internalId clientMutationId }
+}`;
+
+export const RESUBMIT_APPRAISAL_MUTATION = `mutation ResubmitAppraisal($input: ResubmitAppraisalMutationInput!) {
+  resubmitAppraisal(input: $input) { internalId clientMutationId }
 }`;

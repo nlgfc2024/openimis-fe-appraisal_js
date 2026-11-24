@@ -5,6 +5,7 @@ export const RIGHT_APPRAISAL_VIEW = 220001;
 export const RIGHT_APPRAISAL_SCREEN = 220002;
 export const RIGHT_APPRAISAL_SCORE = 220003;
 export const RIGHT_APPRAISAL_SHORTLIST = 220004;
+export const RIGHT_APPRAISAL_REVIEW_DOCUMENTS = 220005;
 export const RIGHT_APPRAISAL_RETURN = 220006;
 
 // The backend GraphQL connection of appraisals
@@ -57,20 +58,36 @@ export const JSON_EXT_REOPENED = "reopened";
 
 // History entries about the appraisal itself rather than one of its items
 export const HISTORY_SUBJECT_APPRAISAL = "appraisal";
+export const HISTORY_SUBJECT_RETURN = "return";
+export const HISTORY_SUBJECT_DOCUMENT_PREFIX = "document:";
+// History fields left out: internal JSON, and users already shown in the "By" column
+export const HISTORY_HIDDEN_FIELDS = ["config_snapshot", "json_ext", "requested_by", "resubmitted_by", "reviewed_by", "decided_by"];
+// History fields whose values are codes, with the translation group naming them
+export const HISTORY_CODED_FIELDS = { status: "status", previous_status: "status", stage: "stage", eligibility: "eligibility" };
+
+// Document check statuses (backend appraisal.models.DocumentReview.Status)
+export const DOCUMENT_SUBMITTED = "SUBMITTED";
+export const DOCUMENT_VERIFIED = "VERIFIED";
+export const DOCUMENT_REJECTED = "REJECTED";
+export const DOCUMENT_OUTSTANDING = "OUTSTANDING";
 
 // Answer fields an officer must fill (util/appraisal.answerProblem)
 export const ANSWER_FIELD_RESULT = "result";
 export const ANSWER_FIELD_EVIDENCE = "evidence";
 export const ANSWER_FIELD_COMMENT = "comment";
 export const ANSWER_FIELD_VALUE = "value";
+export const ANSWER_FIELD_REASON = "reason";
+export const ANSWER_FIELD_ACTION = "actionRequired";
+export const DOCUMENT_FIELD_STATUS = "status";
 
 // Tabs of the appraisal page and the list's summary cards (also their translation keys)
 export const TAB_CHECKLIST = "checklist";
 export const TAB_APPLICATION = "application";
 export const TAB_DOCUMENTS = "documents";
 export const TAB_SCORE = "score";
+export const TAB_RETURNS = "returns";
 export const TAB_HISTORY = "history";
-export const APPRAISAL_TABS = [TAB_CHECKLIST, TAB_SCORE, TAB_APPLICATION, TAB_DOCUMENTS, TAB_HISTORY];
+export const APPRAISAL_TABS = [TAB_CHECKLIST, TAB_SCORE, TAB_APPLICATION, TAB_DOCUMENTS, TAB_RETURNS, TAB_HISTORY];
 export const SUMMARY_CARDS = ["total", "screening", "eligible", "clarification", "ineligible", "review"];
 
 // msr_etl components shown on the appraisal page

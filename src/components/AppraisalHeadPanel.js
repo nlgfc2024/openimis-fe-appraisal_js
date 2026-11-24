@@ -55,6 +55,12 @@ function AppraisalHeadPanel({ edited: appraisal }) {
         {field("appraisal.koboId", appraisal.koboId)}
         {field("appraisal.score", appraisal.score === null || appraisal.score === undefined ? "" : formatPoints(appraisal.score))}
         {field("appraisal.rank", appraisal.rank)}
+        {field(
+          "appraisal.documents",
+          appraisal.documentsComplete === null || appraisal.documentsComplete === undefined
+            ? ""
+            : formatMessage(appraisal.documentsComplete ? "documents.complete" : "documents.incomplete"),
+        )}
       </Grid>
       <Divider />
       <Grid container className={classes.item}>
