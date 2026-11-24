@@ -4,19 +4,19 @@ import { useModulesManager, useTranslations } from "@openimis/fe-core";
 
 import { APPRAISAL_MODULE_NAME } from "../constants";
 import useAppraisalStyles from "../styles";
-import { formatPoints, parseJson, scoreProblem } from "../util/appraisal";
+import { displayValue, formatPoints, parseJson, scoreProblem } from "../util/appraisal";
 
 function ScoreDialog({ item, open, saving, error, onCancel, onSave }) {
   const classes = useAppraisalStyles();
   const modulesManager = useModulesManager();
   const { formatMessage, formatMessageWithValues } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
-  const [score, setScore] = useState({ points: "", evidence: "", comment: "" });
+  const [score, setScore] = useState({ value: "", evidence: "", comment: "" });
   const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     if (open && item) {
       setScore({
-        points: formatPoints(item.officerPoints ?? item.systemPoints) ?? "",
+        value: item.officerValue ?? displayValue(parseJson(item.basis).value),
         evidence: item.evidence || "",
         comment: item.comment || "",
       });
@@ -26,7 +26,7 @@ function ScoreDialog({ item, open, saving, error, onCancel, onSave }) {
 
   if (!item) return null;
   const basis = parseJson(item.basis);
-  const problem = scoreProblem(score, item.maxPoints);
+  const problem = scoreProblem(score);
   const save = () => {
     setTouched(true);
     if (!problem) onSave(score);
@@ -38,7 +38,8 @@ function ScoreDialog({ item, open, saving, error, onCancel, onSave }) {
       <DialogContent>
         <Typography variant="body2" color="textSecondary" gutterBottom>
           {formatMessageWithValues("scoreDialog.system", {
-            points: formatPoints(item.systemPoints) ?? "0",
+            value: displayValue(basis.value) || formatMessage("scoreDialog.noValue"),
+            points: formatPoints(item.systemPoints) ?? formatMessage("scoreDialog.noPoints"),
             max: formatPoints(item.maxPoints),
             note: basis.note || "",
           })}
@@ -51,12 +52,11 @@ function ScoreDialog({ item, open, saving, error, onCancel, onSave }) {
         <TextField
           fullWidth
           margin="dense"
-          type="number"
-          inputProps={{ min: 0, max: Number(item.maxPoints), step: 1 }}
-          label={formatMessageWithValues("scoreDialog.points", { max: formatPoints(item.maxPoints) })}
-          value={score.points}
-          error={touched && problem === "points"}
-          onChange={(e) => setScore({ ...score, points: e.target.value })}
+          label={formatMessage("scoreDialog.value")}
+          helperText={formatMessage("scoreDialog.valueHelp")}
+          value={score.value}
+          error={touched && problem === "value"}
+          onChange={(e) => setScore({ ...score, value: e.target.value })}
         />
         <TextField
           fullWidth
@@ -78,7 +78,7 @@ function ScoreDialog({ item, open, saving, error, onCancel, onSave }) {
         />
         {touched && problem && (
           <Typography variant="body2" className={classes.warning}>
-            {formatMessageWithValues(`scoreDialog.required.${problem}`, { max: formatPoints(item.maxPoints) })}
+            {formatMessage(`scoreDialog.required.${problem}`)}
           </Typography>
         )}
         {error && (

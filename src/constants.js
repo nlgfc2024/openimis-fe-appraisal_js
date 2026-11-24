@@ -84,7 +84,7 @@ export const DOCUMENT_OUTSTANDING = "OUTSTANDING";
 export const ANSWER_FIELD_RESULT = "result";
 export const ANSWER_FIELD_EVIDENCE = "evidence";
 export const ANSWER_FIELD_COMMENT = "comment";
-export const ANSWER_FIELD_POINTS = "points";
+export const ANSWER_FIELD_VALUE = "value";
 export const ANSWER_FIELD_REASON = "reason";
 export const ANSWER_FIELD_ACTION = "actionRequired";
 export const DOCUMENT_FIELD_STATUS = "status";
@@ -106,7 +106,8 @@ export const REF_APPLICANT_DOCUMENTS = "msrEtl.ApplicantDocuments";
 export const EMPTY_VALUE = "\u2014";
 
 // The location type of a city, which the shortlist splits places by (backend shortlist.location_type default)
-export const CITY_LOCATION_TYPE = "R";
+// The quota a ranked appraisal was placed in (backend json_ext.shortlist_group), e.g. its city
+export const JSON_EXT_SHORTLIST_GROUP = "shortlist_group";
 // Ranked appraisals shown per page on the shortlist screen
 export const RANKING_PAGE_SIZE = 50;
 

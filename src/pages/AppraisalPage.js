@@ -141,7 +141,7 @@ function AppraisalPage() {
     try {
       await scoreMutation.mutate({
         id: scoring.uuid,
-        points: String(score.points),
+        value: String(score.value).trim(),
         evidence: score.evidence,
         comment: score.comment,
         clientMutationLabel: formatMessageWithValues("mutation.score", { item: scoring.label, applicant }),

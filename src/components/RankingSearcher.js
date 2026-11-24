@@ -5,7 +5,7 @@ import { Searcher, historyPush, useHistory, useModulesManager, useTranslations }
 
 import { fetchRanking } from "../actions";
 import { APPRAISAL_MODULE_NAME, RANKED_STATUSES, RANKING_PAGE_SIZE, ROWS_PER_PAGE_OPTIONS } from "../constants";
-import { cityOf, formatPoints, parseJson } from "../util/appraisal";
+import { formatPoints, groupLabel, parseJson, shortlistGroup } from "../util/appraisal";
 
 function RankingSearcher({
   programme,
@@ -39,7 +39,7 @@ function RankingSearcher({
     (a) => a.rank ?? "",
     (a) => `${a.individual?.firstName ?? ""} ${a.individual?.lastName ?? ""}`.trim(),
     (a) => parseJson(a.individual?.jsonExt).national_id ?? "",
-    (a) => cityOf(a.individual?.location) ?? "",
+    (a) => groupLabel(shortlistGroup(a)) ?? "",
     (a) => formatPoints(a.score) ?? "",
     (a) => formatMessage(`status.${a.status}`),
   ];
