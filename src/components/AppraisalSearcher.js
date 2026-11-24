@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { Searcher, formatDateTimeFromISO, historyPush, useHistory, useModulesManager, useTranslations } from "@openimis/fe-core";
 import { injectIntl } from "react-intl";
+import FormatListNumberedIcon from "@material-ui/icons/FormatListNumbered";
 
 import { fetchAppraisals } from "../actions";
 import { parseJson } from "../util/appraisal";
@@ -50,6 +51,15 @@ function AppraisalSearcher({
     ["score", false],
     ["date_updated", false],
   ];
+  const searcherActions = [
+    {
+      label: formatMessage("action.ranking"),
+      icon: <FormatListNumberedIcon />,
+      authorized: true,
+      onClick: () => historyPush(modulesManager, history, `${APPRAISAL_MODULE_NAME}.route.shortlist`),
+      variant: "outlined",
+    },
+  ];
   const open = (appraisal, newTab = false) =>
     historyPush(modulesManager, history, `${APPRAISAL_MODULE_NAME}.route.appraisal`, [appraisal.uuid], newTab);
 
@@ -72,6 +82,8 @@ function AppraisalSearcher({
       defaultOrderBy="-date_updated"
       rowIdentifier={(appraisal) => appraisal.id}
       onDoubleClick={open}
+      enableHeaderActionButtons
+      searcherActions={searcherActions}
     />
   );
 }
