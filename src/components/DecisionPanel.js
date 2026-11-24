@@ -1,17 +1,20 @@
 import React, { useState } from "react";
 import { Button, Divider, Grid, Typography } from "@material-ui/core";
-import { TextInput, WarningBox, useModulesManager, useTranslations } from "@openimis/fe-core";
+import { TextInput, WarningBox, formatDateTimeFromISO, useModulesManager, useTranslations } from "@openimis/fe-core";
+import { useIntl } from "react-intl";
 
 import { APPRAISAL_MODULE_NAME } from "../constants";
 import useAppraisalStyles from "../styles";
-import { previewDecision } from "../util/appraisal";
+import { lastReopening, previewDecision } from "../util/appraisal";
 
-function DecisionPanel({ items, canDecide, saving, error, onDecide }) {
+function DecisionPanel({ appraisal, items, canDecide, saving, error, onDecide }) {
   const classes = useAppraisalStyles();
   const modulesManager = useModulesManager();
   const { formatMessage, formatMessageWithValues } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
+  const intl = useIntl();
   const [comment, setComment] = useState("");
   const preview = previewDecision(items);
+  const reopened = lastReopening(appraisal);
   const labels = (keys) => keys.map((key) => items.find((item) => item.key === key)?.label || key).join(", ");
   if (!canDecide) return null;
 
@@ -29,6 +32,17 @@ function DecisionPanel({ items, canDecide, saving, error, onDecide }) {
             </Typography>
           )}
         </Grid>
+        {reopened && (
+          <WarningBox
+            title={formatMessageWithValues("decision.reopened", {
+              decision: formatMessage(`status.${reopened.from}`),
+              user: reopened.by,
+              date: formatDateTimeFromISO(modulesManager, intl, reopened.at),
+            })}
+            description={reopened.reason}
+            xs={12}
+          />
+        )}
         {!!preview.blockers.unanswered.length && (
           <WarningBox
             title={formatMessage("decision.blocked")}

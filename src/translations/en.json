@@ -88,7 +88,8 @@
     "changed": "Answer again, the application changed: {items}",
     "comment": "Decision comment",
     "title": "Eligibility decision",
-    "blocked": "Not yet"
+    "blocked": "Not yet",
+    "reopened": "Reopened from {decision} by {user} on {date}"
   },
   "history": {
     "date": "Date",
@@ -105,11 +106,13 @@
     "decide": "Record decision",
     "save": "Save",
     "cancel": "Cancel",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "reopen": "Reopen the decision"
   },
   "mutation": {
     "answer": "Answer \"{item}\" for {applicant}",
-    "decide": "Eligibility decision for {applicant}"
+    "decide": "Eligibility decision for {applicant}",
+    "reopen": "Reopen the eligibility decision for {applicant}"
   },
   "refusal": {
     "not_found": "This appraisal is not available to you.",
@@ -120,7 +123,9 @@
     "evidence_required": "Record the evidence or source checked.",
     "clarification_required": "Say what needs clarifying.",
     "checklist_incomplete": "Every requirement needs an answer first.",
-    "answers_changed": "Answer again the items whose application changed."
+    "answers_changed": "Answer again the items whose application changed.",
+    "not_reopenable": "Only an eligible or ineligible decision can be reopened, not one already scored or shortlisted.",
+    "reason_required": "Say why the decision is being corrected."
   },
   "emptyLabel": " ",
   "summary": {
@@ -145,5 +150,12 @@
     "application": "Application",
     "documents": "Documents",
     "history": "History"
+  },
+  "reopen": {
+    "title": "Reopen the decision - {applicant}",
+    "help": "The {decision} decision is cleared and the appraisal goes back to desk screening, to answer and decide again.",
+    "reason": "Reason",
+    "reasonHelp": "Why the decision is being corrected; it is kept with the appraisal.",
+    "required": "Give the reason for reopening."
   }
 }

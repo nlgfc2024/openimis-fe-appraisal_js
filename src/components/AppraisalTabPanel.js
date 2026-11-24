@@ -44,6 +44,7 @@ function AppraisalTabPanel({ edited: appraisal, canScreen, onAnswer, onDecide, d
         <>
           <EligibilityChecklist items={items} canAnswer={canScreen} onAnswer={onAnswer} />
           <DecisionPanel
+            appraisal={appraisal}
             items={items}
             canDecide={canScreen}
             saving={deciding}
