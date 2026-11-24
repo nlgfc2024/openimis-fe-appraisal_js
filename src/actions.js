@@ -36,8 +36,7 @@ export function fetchAppraisals(params) {
 const RANKING_PROJECTION = [
   ...APPRAISAL_LIST_PROJECTION.filter((field) => !field.startsWith("individual")),
   "jsonExt",
-  "individual { id firstName lastName jsonExt location { name type parent { name type parent { name type " +
-    "parent { name type } } } } }",
+  "individual { id firstName lastName jsonExt }",
 ];
 
 export function fetchRanking(params) {
@@ -93,7 +92,8 @@ export const APPRAISAL_QUERY = `query AppraisalDetail($id: ID) {
         result isOverridden
       }
       scoreItems: items(kind: "${ITEM_KIND_SCORE}") {
-        id uuid key label systemPoints basis basisChanged officerPoints evidence comment decidedBy decidedAt
+        id uuid key label systemPoints basis basisChanged officerPoints officerValue evidence comment decidedBy
+        decidedAt
         points maxPoints isOverridden
       }
       documentsComplete

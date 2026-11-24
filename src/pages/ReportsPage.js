@@ -23,7 +23,7 @@ import {
   RIGHT_APPRAISAL_VIEW,
 } from "../constants";
 import useAppraisalStyles from "../styles";
-import { humanize } from "../util/appraisal";
+import { groupLabel, humanize } from "../util/appraisal";
 
 function Section({ title, children, md = 6 }) {
   const classes = useAppraisalStyles();
@@ -134,7 +134,7 @@ function ReportsPage() {
               headers={["report.city", "report.places", ...REPORT_CITY_COLUMNS.map((key) => `report.${key}`)]}
               items={report.byCity}
               itemFormatters={[
-                (city) => city.city || formatMessage("report.outsideCities"),
+                (city) => groupLabel(city.city) || formatMessage("report.outsideCities"),
                 (city) => city.places ?? EMPTY_VALUE,
                 ...REPORT_CITY_COLUMNS.map((key) => (city) => city[key]),
               ]}

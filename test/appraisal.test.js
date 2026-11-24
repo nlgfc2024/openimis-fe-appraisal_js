@@ -3,7 +3,8 @@ const assert = require("node:assert/strict");
 
 const {
   answerProblem,
-  cityOf,
+  groupLabel,
+  shortlistGroup,
   formatPoints,
   isScorable,
   isScoringOpen,
@@ -104,14 +105,11 @@ test("parseJson and describeChanges", () => {
   ]);
 });
 
-test("scoreProblem mirrors the backend rules", () => {
-  assert.strictEqual(scoreProblem({ points: "", evidence: "x" }, "25"), "points");
-  assert.strictEqual(scoreProblem({ points: "abc", evidence: "x" }, "25"), "points");
-  assert.strictEqual(scoreProblem({ points: "26", evidence: "x" }, "25"), "points");
-  assert.strictEqual(scoreProblem({ points: "-1", evidence: "x" }, "25"), "points");
-  assert.strictEqual(scoreProblem({ points: "12", evidence: " " }, "25"), "evidence");
-  assert.strictEqual(scoreProblem({ points: "0", evidence: "Site visit" }, "25"), null);
-  assert.strictEqual(scoreProblem({ points: "25", evidence: "Site visit" }, "25"), null);
+test("scoreProblem asks for a value and the evidence", () => {
+  assert.strictEqual(scoreProblem({ value: " ", evidence: "x" }), "value");
+  assert.strictEqual(scoreProblem({ value: null, evidence: "x" }), "value");
+  assert.strictEqual(scoreProblem({ value: "stable", evidence: " " }), "evidence");
+  assert.strictEqual(scoreProblem({ value: "30", evidence: "Registration certificate" }), null);
 });
 
 test("scoring states", () => {
@@ -121,12 +119,12 @@ test("scoring states", () => {
   assert.strictEqual(isScorable({ status: "DESK_SCREENING" }), false);
 });
 
-test("cityOf walks up to the city", () => {
-  const village = { name: "Che-Jine", type: "V", parent: { name: "Makata", type: "W", parent: {
-    name: "Blantyre Malabada", type: "D", parent: { name: "Blantyre", type: "R" } } } };
-  assert.strictEqual(cityOf(village), "Blantyre");
-  assert.strictEqual(cityOf({ name: "Ward", type: "W" }), null);
-  assert.strictEqual(cityOf(null), null);
+test("the shortlist group comes from the backend and reads as a label", () => {
+  assert.strictEqual(shortlistGroup({ jsonExt: JSON.stringify({ shortlist_group: "blantyre" }) }), "blantyre");
+  assert.strictEqual(shortlistGroup({ jsonExt: "{}" }), null);
+  assert.strictEqual(groupLabel("blantyre"), "Blantyre");
+  assert.strictEqual(groupLabel("fast_track"), "Fast track");
+  assert.strictEqual(groupLabel(null), null);
 });
 
 test("shortlistRun and formatPoints", () => {
@@ -177,7 +175,7 @@ test("approvals and report helpers", () => {
   assert.strictEqual(
     describeShortlistGroups(
       [
-        { group: "Blantyre", ranked: 2, shortlisted: 1 },
+        { group: "blantyre", ranked: 2, shortlisted: 1 },
         { group: null, ranked: 3, shortlisted: 3 },
       ],
       "All",

@@ -32,6 +32,7 @@ import {
 import useAppraisalStyles from "../styles";
 import {
   describeShortlistGroups,
+  groupLabel,
   isAwaitingApproval,
   latestApproval,
   refusalCode,
@@ -185,7 +186,7 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
             headers={["shortlist.group", "shortlist.places", "shortlist.ranked", "shortlist.shortlisted"]}
             items={run.groups}
             itemFormatters={[
-              (group) => group.group ?? formatMessage("shortlist.overall"),
+              (group) => groupLabel(group.group) ?? formatMessage("shortlist.overall"),
               (group) => group.places,
               (group) => group.ranked,
               (group) => group.shortlisted,
