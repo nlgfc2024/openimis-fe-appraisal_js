@@ -46,9 +46,8 @@ export const STATUSES = [
   STATUS_RETURNED,
 ];
 // Statuses in which items can be answered and a decision recorded (backend appraisal.review.OPEN_STATUSES)
+// The statuses the overview counts as "in screening" (a filter for its card, not a screening rule)
 export const OPEN_STATUSES = [STATUS_RECEIVED, STATUS_DOCUMENT_CHECK, STATUS_DESK_SCREENING];
-// A decision the backend lets an officer reopen; scored or shortlisted appraisals stay as they are
-export const REOPENABLE_STATUSES = [STATUS_ELIGIBLE, STATUS_INELIGIBLE];
 export const JSON_EXT_REOPENED = "reopened";
 
 // History entries about the appraisal itself rather than one of its items

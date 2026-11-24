@@ -5,7 +5,7 @@ import { useIntl } from "react-intl";
 
 import { APPRAISAL_MODULE_NAME } from "../constants";
 import useAppraisalStyles from "../styles";
-import { lastReopening, previewDecision } from "../util/appraisal";
+import { lastReopening, refusalCode } from "../util/appraisal";
 
 function DecisionPanel({ appraisal, items, canDecide, saving, error, onDecide }) {
   const classes = useAppraisalStyles();
@@ -13,7 +13,9 @@ function DecisionPanel({ appraisal, items, canDecide, saving, error, onDecide })
   const { formatMessage, formatMessageWithValues } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
   const intl = useIntl();
   const [comment, setComment] = useState("");
-  const preview = previewDecision(items);
+  const preview = appraisal?.decisionPreview || {};
+  const unanswered = preview.unanswered || [];
+  const changed = preview.changed || [];
   const reopened = lastReopening(appraisal);
   const labels = (keys) => keys.map((key) => items.find((item) => item.key === key)?.label || key).join(", ");
   if (!canDecide) return null;
@@ -43,17 +45,26 @@ function DecisionPanel({ appraisal, items, canDecide, saving, error, onDecide })
             xs={12}
           />
         )}
-        {!!preview.blockers.unanswered.length && (
+        {!!unanswered.length && (
           <WarningBox
             title={formatMessage("decision.blocked")}
-            description={formatMessageWithValues("decision.unanswered", { items: labels(preview.blockers.unanswered) })}
+            description={formatMessageWithValues("decision.unanswered", { items: labels(unanswered) })}
             xs={12}
           />
         )}
-        {!!preview.blockers.changed.length && (
+        {!!changed.length && (
           <WarningBox
             title={formatMessage("decision.blocked")}
-            description={formatMessageWithValues("decision.changed", { items: labels(preview.blockers.changed) })}
+            description={formatMessageWithValues("decision.changed", { items: labels(changed) })}
+            xs={12}
+          />
+        )}
+        {!!preview.problem && !unanswered.length && !changed.length && (
+          <WarningBox
+            title={formatMessage("decision.blocked")}
+            description={
+              refusalCode(preview.problem) ? formatMessage(`refusal.${refusalCode(preview.problem)}`) : preview.problem
+            }
             xs={12}
           />
         )}
@@ -65,7 +76,7 @@ function DecisionPanel({ appraisal, items, canDecide, saving, error, onDecide })
             fullWidth
             color="primary"
             variant="contained"
-            disabled={!preview.canDecide || saving}
+            disabled={!appraisal?.canDecide || saving}
             onClick={() => onDecide(comment)}
           >
             {formatMessage("action.decide")}

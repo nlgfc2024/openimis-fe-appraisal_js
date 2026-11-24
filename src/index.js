@@ -1,6 +1,6 @@
 import React from "react";
 import flatten from "flat";
-import { FormattedMessage } from "@openimis/fe-core";
+import { FormattedMessage, useModulesManager } from "@openimis/fe-core";
 import AssignmentTurnedInIcon from "@material-ui/icons/AssignmentTurnedIn";
 
 import messages_en from "./translations/en.json";
@@ -8,6 +8,7 @@ import reducer from "./reducer";
 import AppraisalsPage from "./pages/AppraisalsPage";
 import AppraisalPage from "./pages/AppraisalPage";
 import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_VIEW, ROUTE_APPRAISAL, ROUTE_APPRAISALS } from "./constants";
+import { configurationGate } from "./util/configuration";
 
 const DEFAULT_CONFIG = {
   translations: [{ key: "en", messages: flatten(messages_en) }],
@@ -31,4 +32,22 @@ const DEFAULT_CONFIG = {
   ],
 };
 
-export const AppraisalModule = (cfg) => ({ ...DEFAULT_CONFIG, ...cfg });
+export const AppraisalModule = (cfg) => {
+  const config = { ...DEFAULT_CONFIG, ...cfg };
+  const gate = configurationGate();
+  function ConfigurationBoot() {
+    gate.initialize(useModulesManager());
+    return null;
+  }
+  const menuId = `${APPRAISAL_MODULE_NAME}.appraisals`;
+  return {
+    ...config,
+    "core.Boot": [ConfigurationBoot, ...(config["core.Boot"] || [])],
+    // Shown only where the backend appraises a programme, whatever the user's rights
+    "socialProtection.MainMenu": (config["socialProtection.MainMenu"] || []).map((entry) =>
+      entry.id === menuId
+        ? { ...entry, filter: (rights) => gate.enabled() && (!entry.filter || entry.filter(rights)) }
+        : entry,
+    ),
+  };
+};
