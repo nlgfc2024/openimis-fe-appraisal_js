@@ -95,7 +95,8 @@
     "comment": "Decision comment",
     "title": "Eligibility decision",
     "blocked": "Not yet",
-    "documents": "The document check is not complete: {count, plural, one {# document needs} other {# documents need}} review on the <link>Documents tab</link>."
+    "documents": "The document check is not complete: {count, plural, one {# document needs} other {# documents need}} review on the <link>Documents tab</link>.",
+    "reopened": "Reopened from {decision} by {user} on {date}"
   },
   "history": {
     "date": "Date",
@@ -127,7 +128,9 @@
     "verify": "Verify",
     "reject": "Reject",
     "openTask": "Open the task",
-    "reports": "Reports"
+    "reports": "Reports",
+    "closeShortlist": "Close the round",
+    "reopen": "Reopen the decision"
   },
   "mutation": {
     "answer": "Answer \"{item}\" for {applicant}",
@@ -138,7 +141,9 @@
     "shortlist": "Shortlist {programme} {round}",
     "reviewDocument": "{status} \"{document}\" for {applicant}",
     "return": "Return {applicant} for action",
-    "resubmit": "Resubmit {applicant}"
+    "resubmit": "Resubmit {applicant}",
+    "closeShortlist": "Close the {programme} {round} shortlist",
+    "reopen": "Reopen the eligibility decision for {applicant}"
   },
   "refusal": {
     "not_found": "This appraisal is not available to you.",
@@ -166,7 +171,14 @@
     "approval_pending": "This is already awaiting a supervisor's approval.",
     "approval_not_started": "The approval task could not be created.",
     "shortlist_changed": "Scores or applicants changed since the shortlist was asked for; run it again.",
-    "approver_not_allowed": "The approver lacks the right to approve appraisals."
+    "approver_not_allowed": "The approver lacks the right to approve appraisals.",
+    "shortlist_closed": "This round's shortlist is closed.",
+    "shortlist_outdated": "Some scored applicants aren't ranked yet: run the shortlist before closing the round.",
+    "city_without_places": "Some applicants are in a city with no shortlist places configured.",
+    "shortlist_rules_differ": "This round's appraisals were created under different shortlist rules; ask an administrator to settle them.",
+    "individual_not_updated": "The shortlist outcome couldn't be saved on an applicant's record.",
+    "not_reopenable": "Only an eligible or ineligible decision can be reopened, not one already scored or shortlisted.",
+    "reason_required": "Say why the decision is being corrected."
   },
   "emptyLabel": " ",
   "summary": {
@@ -209,7 +221,11 @@
     "overridden": "Set by an officer",
     "changed": "Application changed",
     "none": "Not scored yet.",
-    "rescoreHelp": "Scoring reads the application's answers again; points set by an officer are kept."
+    "rescoreHelp": "Scoring reads the application's answers again; points set by an officer are kept.",
+    "awaiting": "Awaiting points",
+    "awaitingOfficer": "Needs an officer's points",
+    "awaitingTitle": "Points needed from an officer",
+    "awaitingItems": "No points yet for: {items}. The answer is missing or can't be scored, so an officer sets the points with the evidence before the shortlist can run."
   },
   "scoreDialog": {
     "system": "From the application: {points} of {max} points. {note}",
@@ -238,7 +254,11 @@
     "confirmTitle": "Shortlist {programme} {round}?",
     "confirmMessage": "Scored applicants are ranked by score, then submission time, and the top places of each city are shortlisted for physical due diligence. Running it again replaces the previous shortlist.",
     "proposed": "{shortlisted} of {ranked} applicants shortlisted: {groups}",
-    "lastRunApproved": "Last shortlist by {user}, {date}, approved by {approver}"
+    "lastRunApproved": "Last shortlist by {user}, {date}, approved by {approver}",
+    "closeHelp": "Close the round once the shortlist is final: it can't be run again for this round, and later applications are scored but not ranked.",
+    "closed": "Closed by {user}, {date}: this round's shortlist is final.",
+    "closeConfirmTitle": "Close the {programme} {round} shortlist?",
+    "closeConfirmMessage": "The shortlisted and not shortlisted applicants keep their outcome and the shortlist can't be run again for this round. This can't be undone here."
   },
   "documents": {
     "reviewed": "Reviewed by",
@@ -350,5 +370,12 @@
       "toReview": "Documents to review",
       "rejected": "Documents rejected"
     }
+  },
+  "reopen": {
+    "title": "Reopen the decision - {applicant}",
+    "help": "The {decision} decision is cleared and the appraisal goes back to desk screening, to answer and decide again.",
+    "reason": "Reason",
+    "reasonHelp": "Why the decision is being corrected; it is kept with the appraisal.",
+    "required": "Give the reason for reopening."
   }
 }

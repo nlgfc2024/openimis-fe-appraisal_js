@@ -63,6 +63,9 @@ export const RETURNABLE_STATUSES = [
 export const RANKED_STATUSES = [STATUS_SCORED, STATUS_SHORTLISTED, STATUS_NOT_SHORTLISTED];
 // Statuses in which items can be answered and a decision recorded (backend appraisal.review.OPEN_STATUSES)
 export const OPEN_STATUSES = [STATUS_RECEIVED, STATUS_DOCUMENT_CHECK, STATUS_DESK_SCREENING];
+// A decision the backend lets an officer reopen; scored or shortlisted appraisals stay as they are
+export const REOPENABLE_STATUSES = [STATUS_ELIGIBLE, STATUS_INELIGIBLE];
+export const JSON_EXT_REOPENED = "reopened";
 
 // History entries about the appraisal itself rather than one of its items
 export const HISTORY_SUBJECT_APPRAISAL = "appraisal";

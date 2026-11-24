@@ -19,7 +19,9 @@ import {
   ELIGIBILITY_INELIGIBLE,
   EMPTY_VALUE,
   HISTORY_HIDDEN_FIELDS,
+  JSON_EXT_REOPENED,
   OPEN_STATUSES,
+  REOPENABLE_STATUSES,
   RESULT_NO,
   RESULT_PENDING,
   RESULT_YES,
@@ -34,6 +36,17 @@ export function parseJson(value) {
   } catch (e) {
     return {};
   }
+}
+
+/** Whether a recorded eligibility decision can be reopened to correct it. */
+export function isReopenable(appraisal) {
+  return !!appraisal && REOPENABLE_STATUSES.includes(appraisal.status);
+}
+
+/** The latest reopening of the appraisal's decision ({from, by, at, reason}), or null. */
+export function lastReopening(appraisal) {
+  const reopened = parseJson(appraisal?.jsonExt)[JSON_EXT_REOPENED];
+  return Array.isArray(reopened) && reopened.length ? reopened[reopened.length - 1] : null;
 }
 
 /** Whether items can be answered and a decision recorded: the backend's open screening statuses. */
@@ -148,6 +161,16 @@ export function cityOf(location, type = CITY_LOCATION_TYPE) {
 export function shortlistRun(appraisal) {
   const run = parseJson(appraisal?.jsonExt).shortlist;
   return run && Array.isArray(run.groups) ? run : null;
+}
+
+/** Who closed the round's shortlist and when ({by, at}), or null while it can still be run. */
+export function shortlistClosed(run) {
+  return run?.closed || null;
+}
+
+/** Score items without points that count: the answer is missing or unreadable, so an officer sets them. */
+export function awaitingPoints(items) {
+  return (items || []).filter((item) => item.points === null || item.points === undefined);
 }
 
 /** A number for display with at most two decimals (points come as decimal text). */

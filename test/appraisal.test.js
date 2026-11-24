@@ -20,6 +20,10 @@ const {
   previewDecision,
   proposal,
   refusalCode,
+  isReopenable,
+  lastReopening,
+  awaitingPoints,
+  shortlistClosed,
 } = require("../src/util/appraisal");
 
 const item = (key, result, extra = {}) => ({ key, result, basisChanged: false, ...extra });
@@ -184,4 +188,43 @@ test("approvals and report helpers", () => {
   assert.deepStrictEqual(countsByKey(null), {});
   assert.strictEqual(humanize("digital_ict"), "Digital ict");
   assert.strictEqual(humanize(""), "");
+});
+
+test("awaitingPoints lists the score items without points that count", () => {
+  const items = [
+    { key: "a", points: "15.00" },
+    { key: "b", points: null },
+    { key: "c" },
+    { key: "d", points: "0.00" },
+  ];
+  assert.deepStrictEqual(awaitingPoints(items).map((item) => item.key), ["b", "c"]);
+  assert.deepStrictEqual(awaitingPoints(undefined), []);
+});
+
+test("shortlistClosed reads who closed the round", () => {
+  assert.deepStrictEqual(shortlistClosed({ groups: [], closed: { by: "a", at: "2026-11-24T12:00:00" } }), {
+    by: "a",
+    at: "2026-11-24T12:00:00",
+  });
+  assert.strictEqual(shortlistClosed({ groups: [] }), null);
+  assert.strictEqual(shortlistClosed(null), null);
+});
+
+test("a recorded decision can be reopened, a scored or shortlisted one can't", () => {
+  assert.strictEqual(isReopenable({ status: "ELIGIBLE" }), true);
+  assert.strictEqual(isReopenable({ status: "INELIGIBLE" }), true);
+  for (const status of ["DESK_SCREENING", "SCORED", "SHORTLISTED", "RETURNED"]) {
+    assert.strictEqual(isReopenable({ status }), false, status);
+  }
+  assert.strictEqual(isReopenable(null), false);
+});
+
+test("lastReopening reads the latest reopening from jsonExt", () => {
+  const reopened = [
+    { from: "INELIGIBLE", by: "a", at: "2026-11-24T10:00:00", reason: "first" },
+    { from: "ELIGIBLE", by: "b", at: "2026-11-24T11:00:00", reason: "second" },
+  ];
+  assert.deepStrictEqual(lastReopening({ jsonExt: JSON.stringify({ reopened }) }), reopened[1]);
+  assert.strictEqual(lastReopening({ jsonExt: "{}" }), null);
+  assert.strictEqual(lastReopening({}), null);
 });
