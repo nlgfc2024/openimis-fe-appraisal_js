@@ -7,6 +7,7 @@ import {
   APPRAISAL_MODULE_NAME,
   HISTORY_CODED_FIELDS,
   HISTORY_SUBJECT_APPRAISAL,
+  HISTORY_SUBJECT_APPROVAL,
   HISTORY_SUBJECT_DOCUMENT_PREFIX,
   HISTORY_SUBJECT_RETURN,
 } from "../constants";
@@ -21,6 +22,7 @@ function AppraisalHistory({ history, items, documents }) {
   const subject = (key) => {
     if (key === HISTORY_SUBJECT_APPRAISAL) return formatMessage("history.appraisal");
     if (key === HISTORY_SUBJECT_RETURN) return formatMessage("history.return");
+    if (key === HISTORY_SUBJECT_APPROVAL) return formatMessage("history.approval");
     if (key?.startsWith(HISTORY_SUBJECT_DOCUMENT_PREFIX)) {
       const type = key.slice(HISTORY_SUBJECT_DOCUMENT_PREFIX.length);
       return (documents || []).find((doc) => doc.documentType === type)?.label || type;

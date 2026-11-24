@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { Searcher, formatDateTimeFromISO, historyPush, useHistory, useModulesManager, useTranslations } from "@openimis/fe-core";
 import { injectIntl } from "react-intl";
+import AssessmentIcon from "@material-ui/icons/Assessment";
 import FormatListNumberedIcon from "@material-ui/icons/FormatListNumbered";
 
 import { fetchAppraisals } from "../actions";
@@ -57,6 +58,13 @@ function AppraisalSearcher({
       icon: <FormatListNumberedIcon />,
       authorized: true,
       onClick: () => historyPush(modulesManager, history, `${APPRAISAL_MODULE_NAME}.route.shortlist`),
+      variant: "outlined",
+    },
+    {
+      label: formatMessage("action.reports"),
+      icon: <AssessmentIcon />,
+      authorized: true,
+      onClick: () => historyPush(modulesManager, history, `${APPRAISAL_MODULE_NAME}.route.reports`),
       variant: "outlined",
     },
   ];

@@ -59,6 +59,29 @@ export const APPRAISAL_SUMMARY_QUERY = `query AppraisalSummary {
   review: appraisal(first: 1, needsReview: true) { totalCount }
 }`;
 
+const APPROVAL_FIELDS =
+  "id uuid kind programme round status summary requestedBy requestedAt decidedBy decidedAt outcome taskId appraisalId";
+
+// A round's approvals, newest first (the shortlist's, on the shortlist screen)
+export const APPROVALS_QUERY = `query AppraisalApprovals($programme: String!, $round: String, $kind: String) {
+  appraisalApprovals(programme: $programme, round: $round, kind: $kind) { ${APPROVAL_FIELDS} }
+}`;
+
+export const REPORT_QUERY = `query AppraisalReport($programme: String!, $round: String) {
+  appraisalReport(programme: $programme, round: $round) {
+    programme round total
+    byStatus { key count }
+    byStage { key count }
+    byCity { city places total eligible ineligible clarification scored shortlisted }
+    breakdowns { key label counts { key count } }
+    documents { incomplete outstanding toReview rejected }
+    awaiting {
+      notStarted documentsToReview documentsOutstanding clarification answersChanged returned
+      eligibilityApproval shortlistApproval
+    }
+  }
+}`;
+
 // The detail page reads one appraisal through useGraphqlQuery
 export const APPRAISAL_QUERY = `query AppraisalDetail($id: ID) {
   appraisal(id: $id, first: 1) {
@@ -84,6 +107,7 @@ export const APPRAISAL_QUERY = `query AppraisalDetail($id: ID) {
         id uuid stage previousStatus reason actionRequired requestedBy returnedAt resubmittedBy resubmittedAt
         resubmissionNote isOpen
       }
+      pendingApproval { ${APPROVAL_FIELDS} }
       history { date user subject changes }
     } }
   }

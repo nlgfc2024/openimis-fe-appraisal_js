@@ -8,11 +8,18 @@ import reducer from "./reducer";
 import AppraisalsPage from "./pages/AppraisalsPage";
 import AppraisalPage from "./pages/AppraisalPage";
 import ShortlistPage from "./pages/ShortlistPage";
+import ReportsPage from "./pages/ReportsPage";
+import {
+  AppraisalApprovalTaskItemFormatters,
+  AppraisalApprovalTaskTableHeaders,
+} from "./components/tasks/AppraisalApprovalTask";
 import {
   APPRAISAL_MODULE_NAME,
+  APPROVAL_TASK_SOURCE,
   RIGHT_APPRAISAL_VIEW,
   ROUTE_APPRAISAL,
   ROUTE_APPRAISALS,
+  ROUTE_REPORTS,
   ROUTE_SHORTLIST,
 } from "./constants";
 import { configurationGate } from "./util/configuration";
@@ -24,6 +31,15 @@ const DEFAULT_CONFIG = {
     { path: ROUTE_APPRAISALS, component: AppraisalsPage },
     { path: `${ROUTE_APPRAISAL}/:appraisal_uuid`, component: AppraisalPage },
     { path: ROUTE_SHORTLIST, component: ShortlistPage },
+    { path: ROUTE_REPORTS, component: ReportsPage },
+  ],
+  "tasksManagement.tasks": [
+    {
+      text: <FormattedMessage module={APPRAISAL_MODULE_NAME} id="task.title" />,
+      tableHeaders: AppraisalApprovalTaskTableHeaders,
+      itemFormatters: AppraisalApprovalTaskItemFormatters,
+      taskSource: [APPROVAL_TASK_SOURCE],
+    },
   ],
   "socialProtection.MainMenu": [
     {
@@ -38,6 +54,7 @@ const DEFAULT_CONFIG = {
     { key: `${APPRAISAL_MODULE_NAME}.route.appraisals`, ref: ROUTE_APPRAISALS },
     { key: `${APPRAISAL_MODULE_NAME}.route.appraisal`, ref: ROUTE_APPRAISAL },
     { key: `${APPRAISAL_MODULE_NAME}.route.shortlist`, ref: ROUTE_SHORTLIST },
+    { key: `${APPRAISAL_MODULE_NAME}.route.reports`, ref: ROUTE_REPORTS },
   ],
 };
 

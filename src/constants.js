@@ -7,12 +7,14 @@ export const RIGHT_APPRAISAL_SCORE = 220003;
 export const RIGHT_APPRAISAL_SHORTLIST = 220004;
 export const RIGHT_APPRAISAL_REVIEW_DOCUMENTS = 220005;
 export const RIGHT_APPRAISAL_RETURN = 220006;
+export const RIGHT_APPRAISAL_APPROVE = 220007;
 
 // The backend GraphQL connection of appraisals
 export const GQL_APPRAISAL_QUERY = "appraisal";
 
 export const ROUTE_APPRAISALS = "appraisals";
 export const ROUTE_APPRAISAL = "appraisals/appraisal";
+export const ROUTE_REPORTS = "appraisals/reports";
 export const ROUTE_SHORTLIST = "appraisals/shortlist";
 
 // Values of the backend appraisal models (Appraisal, AppraisalItem)
@@ -61,9 +63,25 @@ export const HISTORY_SUBJECT_APPRAISAL = "appraisal";
 export const HISTORY_SUBJECT_RETURN = "return";
 export const HISTORY_SUBJECT_DOCUMENT_PREFIX = "document:";
 // History fields left out: internal JSON, and users already shown in the "By" column
-export const HISTORY_HIDDEN_FIELDS = ["config_snapshot", "json_ext", "requested_by", "resubmitted_by", "reviewed_by", "decided_by"];
+export const HISTORY_HIDDEN_FIELDS = [
+  "config_snapshot",
+  "json_ext",
+  "proposal",
+  "summary",
+  "task",
+  "requested_by",
+  "resubmitted_by",
+  "reviewed_by",
+  "decided_by",
+];
 // History fields whose values are codes, with the translation group naming them
-export const HISTORY_CODED_FIELDS = { status: "status", previous_status: "status", stage: "stage", eligibility: "eligibility" };
+export const HISTORY_CODED_FIELDS = {
+  kind: "approvalKind",
+  status: "status",
+  previous_status: "status",
+  stage: "stage",
+  eligibility: "eligibility",
+};
 
 // Document check statuses (backend appraisal.models.DocumentReview.Status)
 export const DOCUMENT_SUBMITTED = "SUBMITTED";
@@ -89,6 +107,31 @@ export const TAB_RETURNS = "returns";
 export const TAB_HISTORY = "history";
 export const APPRAISAL_TABS = [TAB_CHECKLIST, TAB_SCORE, TAB_APPLICATION, TAB_DOCUMENTS, TAB_RETURNS, TAB_HISTORY];
 export const SUMMARY_CARDS = ["total", "screening", "eligible", "clarification", "ineligible", "review"];
+
+// Supervisor approval (backend appraisal.approvals), given in tasks_management
+export const APPROVAL_SHORTLIST = "SHORTLIST";
+export const APPROVAL_ELIGIBILITY = "ELIGIBILITY";
+export const APPROVAL_PENDING = "PENDING";
+export const APPROVAL_APPROVED = "APPROVED";
+export const APPROVAL_REJECTED = "REJECTED";
+export const APPROVAL_FAILED = "FAILED";
+export const APPROVAL_TASK_SOURCE = "appraisal";
+export const TASK_ROUTE_REF = "tasksManagement.route.task";
+export const HISTORY_SUBJECT_APPROVAL = "approval";
+
+// The report's "awaiting action" counts, in the order shown (backend appraisal.reports)
+export const REPORT_AWAITING = [
+  "notStarted",
+  "documentsToReview",
+  "documentsOutstanding",
+  "clarification",
+  "answersChanged",
+  "returned",
+  "eligibilityApproval",
+  "shortlistApproval",
+];
+export const REPORT_DOCUMENTS = ["incomplete", "outstanding", "toReview", "rejected"];
+export const REPORT_CITY_COLUMNS = ["total", "eligible", "ineligible", "clarification", "scored", "shortlisted"];
 
 // msr_etl components shown on the appraisal page
 export const REF_KOBO_APPLICATIONS = "msrEtl.KoboApplications";

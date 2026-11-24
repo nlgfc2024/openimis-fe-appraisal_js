@@ -16,15 +16,30 @@ import {
   SelectInput,
   formatDateTimeFromISO,
   useGraphqlMutation,
+  useGraphqlQuery,
   useModulesManager,
   useTranslations,
 } from "@openimis/fe-core";
 import { useIntl } from "react-intl";
 
-import { CLOSE_SHORTLIST_MUTATION, SCORE_APPRAISALS_MUTATION, SHORTLIST_MUTATION } from "../actions";
-import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_SCORE, RIGHT_APPRAISAL_SHORTLIST } from "../constants";
+import { APPROVALS_QUERY, CLOSE_SHORTLIST_MUTATION, SCORE_APPRAISALS_MUTATION, SHORTLIST_MUTATION } from "../actions";
+import {
+  APPRAISAL_MODULE_NAME,
+  APPROVAL_SHORTLIST,
+  RIGHT_APPRAISAL_SCORE,
+  RIGHT_APPRAISAL_SHORTLIST,
+} from "../constants";
 import useAppraisalStyles from "../styles";
-import { groupLabel, refusalCode, shortlistClosed, shortlistRun } from "../util/appraisal";
+import {
+  describeShortlistGroups,
+  groupLabel,
+  isAwaitingApproval,
+  latestApproval,
+  refusalCode,
+  shortlistClosed,
+  shortlistRun,
+} from "../util/appraisal";
+import ApprovalStatus from "./ApprovalStatus";
 
 function ShortlistPanel({ programme, round, rounds = [], onChange, onDone }) {
   const classes = useAppraisalStyles();
@@ -41,6 +56,13 @@ function ShortlistPanel({ programme, round, rounds = [], onChange, onDone }) {
   const run = shortlistRun((ranking || []).find((appraisal) => shortlistRun(appraisal)));
   const closed = shortlistClosed(run);
   const ready = !!programme && !!round;
+  const approvals = useGraphqlQuery(
+    APPROVALS_QUERY,
+    { programme, round, kind: APPROVAL_SHORTLIST },
+    { skip: !ready, keepStale: true },
+  );
+  const approval = latestApproval(approvals.data?.appraisalApprovals);
+  const awaiting = isAwaitingApproval(approval);
   const canShortlist = rights.includes(RIGHT_APPRAISAL_SHORTLIST);
   const busy = scoreMutation.isLoading || shortlistMutation.isLoading || closeMutation.isLoading;
   const date = (value) => formatDateTimeFromISO(modulesManager, intl, value);
@@ -76,6 +98,7 @@ function ShortlistPanel({ programme, round, rounds = [], onChange, onDone }) {
         clientMutationLabel: formatMessageWithValues(label, { programme, round }),
       });
       onDone();
+      approvals.refetch();
     } catch (err) {
       const code = refusalCode(err);
       setError(code ? formatMessage(`refusal.${code}`) : String(err?.message || err));
@@ -121,7 +144,7 @@ function ShortlistPanel({ programme, round, rounds = [], onChange, onDone }) {
               fullWidth
               color="primary"
               variant="contained"
-              disabled={!ready || busy || !!closed}
+              disabled={!ready || busy || awaiting || !!closed}
               onClick={() => setConfirming("shortlist")}
             >
               {formatMessage("action.shortlist")}
@@ -136,11 +159,25 @@ function ShortlistPanel({ programme, round, rounds = [], onChange, onDone }) {
           </Grid>
         )}
       </Grid>
+      {approval && (
+        <ApprovalStatus
+          approval={approval}
+          description={formatMessageWithValues("shortlist.proposed", {
+            shortlisted: approval.summary.shortlisted,
+            ranked: approval.summary.ranked,
+            groups: describeShortlistGroups(approval.summary.groups, formatMessage("shortlist.overall")),
+          })}
+        />
+      )}
       <Divider />
       {run ? (
         <>
           <Typography variant="body2" className={`${classes.section} ${classes.muted}`}>
-            {formatMessageWithValues("shortlist.lastRun", { user: run.by, date: date(run.at) })}
+            {formatMessageWithValues(run.approved_by ? "shortlist.lastRunApproved" : "shortlist.lastRun", {
+              user: run.by,
+              date: date(run.at),
+              approver: run.approved_by,
+            })}
           </Typography>
           <Table
             module={APPRAISAL_MODULE_NAME}
@@ -171,7 +208,7 @@ function ShortlistPanel({ programme, round, rounds = [], onChange, onDone }) {
                     fullWidth
                     color="primary"
                     variant="outlined"
-                    disabled={!ready || busy}
+                    disabled={!ready || busy || awaiting}
                     onClick={() => setConfirming("close")}
                   >
                     {formatMessage("action.closeShortlist")}
