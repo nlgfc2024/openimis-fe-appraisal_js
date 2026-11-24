@@ -90,6 +90,10 @@ export const ANSWER_ITEM_MUTATION = `mutation AnswerAppraisalItem($input: Answer
   answerAppraisalItem(input: $input) { internalId clientMutationId }
 }`;
 
+export const REOPEN_APPRAISAL_MUTATION = `mutation ReopenAppraisal($input: ReopenAppraisalMutationInput!) {
+  reopenAppraisal(input: $input) { internalId clientMutationId }
+}`;
+
 export const DECIDE_ELIGIBILITY_MUTATION = `mutation DecideAppraisalEligibility(
   $input: DecideAppraisalEligibilityMutationInput!
 ) {
@@ -102,6 +106,10 @@ export const SCORE_APPRAISALS_MUTATION = `mutation ScoreAppraisals($input: Score
 
 export const ANSWER_SCORE_MUTATION = `mutation AnswerAppraisalScore($input: AnswerAppraisalScoreMutationInput!) {
   answerAppraisalScore(input: $input) { internalId clientMutationId }
+}`;
+
+export const CLOSE_SHORTLIST_MUTATION = `mutation CloseShortlist($input: CloseShortlistMutationInput!) {
+  closeShortlist(input: $input) { internalId clientMutationId }
 }`;
 
 export const SHORTLIST_MUTATION = `mutation ShortlistAppraisals($input: ShortlistAppraisalsMutationInput!) {

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import LockOpenIcon from "@material-ui/icons/LockOpen";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import ReturnIcon from "@material-ui/icons/AssignmentReturn";
 import {
@@ -19,6 +20,7 @@ import {
   ANSWER_SCORE_MUTATION,
   APPRAISAL_QUERY,
   DECIDE_ELIGIBILITY_MUTATION,
+  REOPEN_APPRAISAL_MUTATION,
   RESUBMIT_APPRAISAL_MUTATION,
   RETURN_APPRAISAL_MUTATION,
   REVIEW_DOCUMENT_MUTATION,
@@ -28,6 +30,7 @@ import AnswerItemDialog from "../components/AnswerItemDialog";
 import AppraisalHeadPanel from "../components/AppraisalHeadPanel";
 import AppraisalTabPanel from "../components/AppraisalTabPanel";
 import DocumentRejectDialog from "../components/DocumentRejectDialog";
+import ReopenDialog from "../components/ReopenDialog";
 import { ResubmitDialog, ReturnDialog } from "../components/ReturnDialogs";
 import ScoreDialog from "../components/ScoreDialog";
 import {
@@ -41,7 +44,15 @@ import {
   RIGHT_APPRAISAL_VIEW,
 } from "../constants";
 import useAppraisalStyles from "../styles";
-import { isReturnable, isScorable, isScoringOpen, isScreeningOpen, openReturn, refusalCode } from "../util/appraisal";
+import {
+  isReopenable,
+  isReturnable,
+  isScorable,
+  isScoringOpen,
+  isScreeningOpen,
+  openReturn,
+  refusalCode,
+} from "../util/appraisal";
 
 function AppraisalPage() {
   const classes = useAppraisalStyles();
@@ -62,6 +73,8 @@ function AppraisalPage() {
   const [returnError, setReturnError] = useState(null);
   const [resubmitting, setResubmitting] = useState(false);
   const [resubmitError, setResubmitError] = useState(null);
+  const [reopening, setReopening] = useState(false);
+  const [reopenError, setReopenError] = useState(null);
 
   const { isLoading, error, data, refetch } = useGraphqlQuery(
     APPRAISAL_QUERY,
@@ -75,6 +88,7 @@ function AppraisalPage() {
   const reviewMutation = useGraphqlMutation(REVIEW_DOCUMENT_MUTATION);
   const returnMutation = useGraphqlMutation(RETURN_APPRAISAL_MUTATION);
   const resubmitMutation = useGraphqlMutation(RESUBMIT_APPRAISAL_MUTATION);
+  const reopenMutation = useGraphqlMutation(REOPEN_APPRAISAL_MUTATION);
 
   if (!rights.includes(RIGHT_APPRAISAL_VIEW)) return null;
   const appraisal = data?.appraisal?.edges?.[0]?.node;
@@ -84,6 +98,7 @@ function AppraisalPage() {
   const canRescore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScorable(appraisal);
   const canReviewDocuments = rights.includes(RIGHT_APPRAISAL_REVIEW_DOCUMENTS) && isScreeningOpen(appraisal);
   const canReturn = rights.includes(RIGHT_APPRAISAL_RETURN) && isReturnable(appraisal);
+  const canReopen = rights.includes(RIGHT_APPRAISAL_RETURN) && isReopenable(appraisal);
   const canResubmit = rights.includes(RIGHT_APPRAISAL_RETURN) && !!openReturn(appraisal);
   const refusal = (err) => {
     const code = refusalCode(err);
@@ -203,9 +218,24 @@ function AppraisalPage() {
       () => setResubmitting(false),
     );
 
+  const saveReopen = (reason) =>
+    submit(
+      reopenMutation,
+      { id: appraisal.uuid, reason, clientMutationLabel: formatMessageWithValues("mutation.reopen", { applicant }) },
+      setReopenError,
+      () => setReopening(false),
+    );
+
   const actions = [{ doIt: refetch, icon: <RefreshIcon />, tooltip: formatMessage("action.refresh") }];
   if (canReturn) {
     actions.unshift({ doIt: () => setReturning(true), icon: <ReturnIcon />, tooltip: formatMessage("action.return") });
+  }
+  if (canReopen) {
+    actions.unshift({
+      doIt: () => setReopening(true),
+      icon: <LockOpenIcon />,
+      tooltip: formatMessage("action.reopen"),
+    });
   }
 
   return (
@@ -298,6 +328,18 @@ function AppraisalPage() {
           setResubmitError(null);
         }}
         onSave={saveResubmit}
+      />
+      <ReopenDialog
+        open={reopening}
+        applicant={applicant}
+        decision={appraisal?.eligibility ? formatMessage(`eligibility.${appraisal.eligibility}`) : ""}
+        saving={reopenMutation.isLoading}
+        error={reopenError}
+        onCancel={() => {
+          setReopening(false);
+          setReopenError(null);
+        }}
+        onSave={saveReopen}
       />
     </div>
   );

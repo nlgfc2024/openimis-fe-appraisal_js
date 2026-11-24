@@ -68,6 +68,7 @@ function AppraisalTabPanel({
         <>
           <EligibilityChecklist items={items} canAnswer={canScreen} onAnswer={onAnswer} />
           <DecisionPanel
+            appraisal={appraisal}
             items={items}
             documents={appraisal.documents}
             documentsComplete={appraisal.documentsComplete}
