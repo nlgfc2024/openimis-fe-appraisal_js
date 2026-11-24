@@ -1,0 +1,149 @@
+{
+  "menu": {
+    "appraisals": "Desk appraisal"
+  },
+  "appraisals": {
+    "title": "Desk appraisal"
+  },
+  "appraisal": {
+    "title": "Appraisal - {applicant}",
+    "summary": "{programme} · {round} · {stage} · Kobo {kobo}",
+    "searcherResultsTitle": "{count, plural, one {# appraisal} other {# appraisals}}",
+    "applicant": "Applicant",
+    "programme": "Programme",
+    "round": "Round",
+    "stage": "Stage",
+    "status": "Status",
+    "eligibility": "Eligibility",
+    "score": "Score",
+    "dateUpdated": "Updated",
+    "decision": "Decision",
+    "nationalId": "National ID",
+    "koboId": "Kobo submission"
+  },
+  "filter": {
+    "search": "Name or national ID",
+    "programme": "Programme",
+    "status": "Status",
+    "eligibility": "Eligibility",
+    "needsReview": "Answers changed since review"
+  },
+  "stage": {
+    "DOCUMENT_CHECK": "Document check",
+    "DESK_SCREENING": "Desk screening",
+    "DESK_SCORING": "Desk scoring",
+    "SHORTLISTING": "Shortlisting",
+    "CLOSED": "Closed"
+  },
+  "status": {
+    "null": "Any status",
+    "RECEIVED": "Received",
+    "DOCUMENT_CHECK": "Document check",
+    "DESK_SCREENING": "Desk screening",
+    "ELIGIBLE": "Eligible",
+    "INELIGIBLE": "Ineligible",
+    "SCORED": "Scored",
+    "SHORTLISTED": "Shortlisted",
+    "NOT_SHORTLISTED": "Not shortlisted",
+    "RETURNED": "Returned for action"
+  },
+  "eligibility": {
+    "null": "Any decision",
+    "ELIGIBLE": "Eligible",
+    "INELIGIBLE": "Ineligible",
+    "CLARIFICATION": "Clarification required"
+  },
+  "result": {
+    "YES": "Yes",
+    "NO": "No",
+    "PENDING": "Pending"
+  },
+  "checklist": {
+    "item": "Requirement",
+    "system": "From the application",
+    "officer": "Officer",
+    "proposed": "Proposed: {result}",
+    "evidence": "Evidence / comment",
+    "basisChanged": "Application changed since answered",
+    "basis": "Basis",
+    "decided": "Answered by"
+  },
+  "answer": {
+    "system": "From the application: {result}. {note}",
+    "proposed": "The uploaded template proposes {result}; confirm it against the document.",
+    "basisChanged": "The application changed since this was last answered.",
+    "evidence": "Evidence or source checked",
+    "evidenceHelp": "Required for Yes and No",
+    "comment": "Comment",
+    "commentHelp": "For Pending, say what needs clarifying",
+    "required": {
+      "result": "Choose Yes, No or Pending.",
+      "evidence": "Record the evidence or source checked.",
+      "comment": "Say what needs clarifying."
+    }
+  },
+  "decision": {
+    "preview": "The checklist leads to: {decision}",
+    "unanswered": "Not answered yet: {items}",
+    "changed": "Answer again, the application changed: {items}",
+    "comment": "Decision comment",
+    "title": "Eligibility decision",
+    "blocked": "Not yet"
+  },
+  "history": {
+    "date": "Date",
+    "user": "By",
+    "subject": "What",
+    "changes": "Changes",
+    "appraisal": "Appraisal",
+    "created": "Created",
+    "none": "No changes yet."
+  },
+  "action": {
+    "answer": "Answer",
+    "change": "Change",
+    "decide": "Record decision",
+    "save": "Save",
+    "cancel": "Cancel",
+    "refresh": "Refresh"
+  },
+  "mutation": {
+    "answer": "Answer \"{item}\" for {applicant}",
+    "decide": "Eligibility decision for {applicant}"
+  },
+  "refusal": {
+    "not_found": "This appraisal is not available to you.",
+    "item_not_found": "This checklist item no longer exists.",
+    "screening_closed": "Screening is closed for this appraisal.",
+    "item_not_eligibility": "Score items are answered when scoring.",
+    "invalid_result": "Choose Yes, No or Pending.",
+    "evidence_required": "Record the evidence or source checked.",
+    "clarification_required": "Say what needs clarifying.",
+    "checklist_incomplete": "Every requirement needs an answer first.",
+    "answers_changed": "Answer again the items whose application changed."
+  },
+  "emptyLabel": " ",
+  "summary": {
+    "title": "Overview",
+    "total": "Appraisals",
+    "screening": "In screening",
+    "eligible": "Eligible",
+    "clarification": "Clarification required",
+    "ineligible": "Ineligible",
+    "review": "Answers changed"
+  },
+  "head": {
+    "title": "Application",
+    "met": "Requirements met",
+    "pending": "Pending",
+    "notMet": "Not met",
+    "leadsTo": "Checklist leads to",
+    "decision": "Decision"
+  },
+  "tab": {
+    "checklist": "Eligibility checklist",
+    "application": "Application",
+    "documents": "Documents",
+    "history": "History"
+  }
+}
