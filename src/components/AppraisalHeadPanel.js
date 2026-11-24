@@ -4,7 +4,7 @@ import { TextInput, useModulesManager, useTranslations } from "@openimis/fe-core
 
 import { APPRAISAL_MODULE_NAME, EMPTY_VALUE, RESULT_NO, RESULT_PENDING, RESULT_YES } from "../constants";
 import useAppraisalStyles from "../styles";
-import { formatPoints, parseJson, previewDecision } from "../util/appraisal";
+import { formatPoints, parseJson } from "../util/appraisal";
 import StatCard from "./StatCard";
 
 function AppraisalHeadPanel({ edited: appraisal }) {
@@ -13,7 +13,6 @@ function AppraisalHeadPanel({ edited: appraisal }) {
   const { formatMessage } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
   if (!appraisal) return null;
   const items = appraisal.items || [];
-  const preview = previewDecision(items);
   const count = (result) => items.filter((item) => item.result === result).length;
   const field = (label, value, xs = 3) => (
     <Grid item xs={12} sm={6} md={xs} className={classes.item}>
@@ -25,7 +24,7 @@ function AppraisalHeadPanel({ edited: appraisal }) {
       />
     </Grid>
   );
-  const decision = appraisal.eligibility || preview.decision;
+  const decision = appraisal.eligibility || appraisal.decisionPreview?.decision;
 
   return (
     <>

@@ -51,9 +51,8 @@ export const STATUSES = [
 // Statuses that are ranked for the shortlist (backend appraisal.scoring.RANKED)
 export const RANKED_STATUSES = [STATUS_SCORED, STATUS_SHORTLISTED, STATUS_NOT_SHORTLISTED];
 // Statuses in which items can be answered and a decision recorded (backend appraisal.review.OPEN_STATUSES)
+// The statuses the overview counts as "in screening" (a filter for its card, not a screening rule)
 export const OPEN_STATUSES = [STATUS_RECEIVED, STATUS_DOCUMENT_CHECK, STATUS_DESK_SCREENING];
-// A decision the backend lets an officer reopen; scored or shortlisted appraisals stay as they are
-export const REOPENABLE_STATUSES = [STATUS_ELIGIBLE, STATUS_INELIGIBLE];
 export const JSON_EXT_REOPENED = "reopened";
 
 // History entries about the appraisal itself rather than one of its items
@@ -81,8 +80,6 @@ export const REF_APPLICANT_DOCUMENTS = "msrEtl.ApplicantDocuments";
 export const EMPTY_VALUE = "\u2014";
 
 // The location type of a city, which the shortlist splits places by (backend shortlist.location_type default)
-// The quota a ranked appraisal was placed in (backend json_ext.shortlist_group), e.g. its city
-export const JSON_EXT_SHORTLIST_GROUP = "shortlist_group";
 // Ranked appraisals shown per page on the shortlist screen
 export const RANKING_PAGE_SIZE = 50;
 

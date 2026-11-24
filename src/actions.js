@@ -36,6 +36,7 @@ export function fetchAppraisals(params) {
 const RANKING_PROJECTION = [
   ...APPRAISAL_LIST_PROJECTION.filter((field) => !field.startsWith("individual")),
   "jsonExt",
+  "shortlistGroup",
   "individual { id firstName lastName jsonExt }",
 ];
 
@@ -63,6 +64,8 @@ export const APPRAISAL_QUERY = `query AppraisalDetail($id: ID) {
   appraisal(id: $id, first: 1) {
     edges { node {
       id uuid programme round stage status eligibility score rank koboId submissionId jsonExt dateUpdated
+      canScreen canDecide canReopen canScore canRescore
+      decisionPreview { decision ineligible pending unanswered changed problem }
       individual { id uuid firstName lastName dob jsonExt }
       items(kind: "${ITEM_KIND_ELIGIBILITY}") {
         id uuid key label systemResult basis basisChanged officerResult evidence comment decidedBy decidedAt

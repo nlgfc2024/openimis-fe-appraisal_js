@@ -29,13 +29,11 @@ import ReopenDialog from "../components/ReopenDialog";
 import ScoreDialog from "../components/ScoreDialog";
 import {
   APPRAISAL_MODULE_NAME,
-  RIGHT_APPRAISAL_RETURN,
-  RIGHT_APPRAISAL_SCORE,
-  RIGHT_APPRAISAL_SCREEN,
   RIGHT_APPRAISAL_VIEW,
 } from "../constants";
 import useAppraisalStyles from "../styles";
-import { isReopenable, isScorable, isScoringOpen, isScreeningOpen, refusalCode } from "../util/appraisal";
+import { isAppraisalConfigured } from "../util/configuration";
+import { refusalCode } from "../util/appraisal";
 
 function AppraisalPage() {
   const classes = useAppraisalStyles();
@@ -64,13 +62,14 @@ function AppraisalPage() {
   const scoreMutation = useGraphqlMutation(ANSWER_SCORE_MUTATION);
   const rescoreMutation = useGraphqlMutation(SCORE_APPRAISALS_MUTATION);
 
-  if (!rights.includes(RIGHT_APPRAISAL_VIEW)) return null;
+  if (!rights.includes(RIGHT_APPRAISAL_VIEW) || !isAppraisalConfigured(modulesManager)) return null;
   const appraisal = data?.appraisal?.edges?.[0]?.node;
   const applicant = `${appraisal?.individual?.firstName ?? ""} ${appraisal?.individual?.lastName ?? ""}`.trim();
-  const canScreen = rights.includes(RIGHT_APPRAISAL_SCREEN) && isScreeningOpen(appraisal);
-  const canReopen = rights.includes(RIGHT_APPRAISAL_RETURN) && isReopenable(appraisal);
-  const canScore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScoringOpen(appraisal);
-  const canRescore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScorable(appraisal);
+  RIGHT_APPRAISAL_VIEW,
+} from "../constants";
+import useAppraisalStyles from "../styles";
+import { isAppraisalConfigured } from "../util/configuration";
+import { refusalCode } from "../util/appraisal";
   const refusal = (err) => {
     const code = refusalCode(err);
     return code ? formatMessage(`refusal.${code}`) : String(err?.message || err);

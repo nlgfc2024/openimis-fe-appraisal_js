@@ -26,7 +26,17 @@ Both pages use the CoreMIS building blocks and theme: fe-core's `Searcher`, `For
   - **Application** and **Documents** tabs: msr_etl's `msrEtl.KoboApplications` and `msrEtl.ApplicantDocuments`;
   - **History** tab: who changed what and when.
 
-Answer and Record decision are shown only with the screening right while screening is open.
+What the user may do comes from the backend, worked out by the same rules as its mutations: the appraisal's
+`canScreen` (Answer), `canDecide` (Record decision), `canReopen`, and `decisionPreview` (what the checklist leads
+to and what blocks it). The page doesn't repeat those rules; the answer dialog only checks that the evidence or
+clarification is filled in before sending.
+
+## Where it shows
+
+The menu entry and both pages show only where the backend appraises a programme: the backend `appraisal`
+configuration has to be saved exposed (`is_exposed`), and its `programmes` not empty. The frontend reads it with
+`modulesManager.getConf("appraisal", "programmes")`, so one backend setting decides it; without an exposed
+configuration nothing shows. The rights below then decide what each user sees.
 
 ## Rights
 
