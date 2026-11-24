@@ -206,7 +206,7 @@
     "yes": "Yes",
     "no": "No",
     "total": "Score (out of 100)",
-    "rank": "Rank in city",
+    "rank": "Rank in group",
     "overridden": "Set by an officer",
     "changed": "Application changed",
     "none": "Not scored yet.",
@@ -230,25 +230,30 @@
     "noPoints": "no"
   },
   "ranking": {
-    "rank": "Rank",
-    "city": "City",
+    "rank": "Rank in group",
+    "city": "Group",
     "searcherResultsTitle": "{count, plural, one {# ranked applicant} other {# ranked applicants}}"
   },
   "shortlist": {
     "title": "Ranking and shortlist",
     "lastRun": "Last shortlist by {user}, {date}",
     "notRun": "No shortlist has been run for this round yet.",
-    "group": "City / quota",
+    "group": "Group",
     "overall": "Other places",
     "places": "Places",
     "ranked": "Ranked",
     "shortlisted": "Shortlisted",
     "confirmTitle": "Shortlist {programme} {round}?",
-    "confirmMessage": "Scored applicants are ranked by score, then submission time, and the top places of each city are shortlisted for physical due diligence. Running it again replaces the previous shortlist.",
+    "confirmMessage": "Scored applicants are ranked by score, then submission time, and the round's places are filled group by group as configured. Running it again replaces the previous shortlist.",
     "closeHelp": "Close the round once the shortlist is final: it can't be run again for this round, and later applications are scored but not ranked.",
     "closed": "Closed by {user}, {date}: this round's shortlist is final.",
     "closeConfirmTitle": "Close the {programme} {round} shortlist?",
-    "closeConfirmMessage": "The shortlisted and not shortlisted applicants keep their outcome and the shortlist can't be run again for this round. This can't be undone here."
+    "closeConfirmMessage": "The shortlisted and not shortlisted applicants keep their outcome and the shortlist can't be run again for this round. This can't be undone here.",
+    "round": "Round",
+    "roundOption": "{programme} {round} ({count, plural, one {# appraisal} other {# appraisals}})",
+    "roundCurrent": "{programme} {round}, the configured round ({count, plural, one {# appraisal} other {# appraisals}})",
+    "scoreConfirmTitle": "Score {programme} {round}?",
+    "scoreConfirmMessage": "Every eligible or scored application of the round is scored again from its answers. Values an officer corrected are kept."
   },
   "documents": {
     "reviewed": "Reviewed by",

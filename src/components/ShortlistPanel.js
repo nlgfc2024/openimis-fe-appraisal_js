@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import {
   Button,
@@ -13,7 +13,7 @@ import {
 } from "@material-ui/core";
 import {
   Table,
-  TextInput,
+  SelectInput,
   formatDateTimeFromISO,
   useGraphqlMutation,
   useModulesManager,
@@ -26,14 +26,13 @@ import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_SCORE, RIGHT_APPRAISAL_SHORTLIST
 import useAppraisalStyles from "../styles";
 import { groupLabel, refusalCode, shortlistClosed, shortlistRun } from "../util/appraisal";
 
-function ShortlistPanel({ programme, round, onChange, onDone }) {
+function ShortlistPanel({ programme, round, rounds = [], onChange, onDone }) {
   const classes = useAppraisalStyles();
   const modulesManager = useModulesManager();
   const intl = useIntl();
   const { formatMessage, formatMessageWithValues } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
   const rights = useSelector((state) => state.core?.user?.i_user?.rights ?? []);
   const ranking = useSelector((state) => state.appraisal.ranking);
-  const [draft, setDraft] = useState({ programme, round });
   const [confirming, setConfirming] = useState(null);
   const [error, setError] = useState(null);
   const scoreMutation = useGraphqlMutation(SCORE_APPRAISALS_MUTATION);
@@ -43,15 +42,16 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
   const closed = shortlistClosed(run);
   const ready = !!programme && !!round;
   const canShortlist = rights.includes(RIGHT_APPRAISAL_SHORTLIST);
-  useEffect(() => setDraft({ programme, round }), [programme, round]);
-  // The round is applied when a field is left, not on every keystroke
-  const apply = () => {
-    if (draft.programme !== programme || draft.round !== round) onChange(draft);
-  };
   const busy = scoreMutation.isLoading || shortlistMutation.isLoading || closeMutation.isLoading;
   const date = (value) => formatDateTimeFromISO(modulesManager, intl, value);
   // The confirmation shown for each action: its mutation, translation keys and button label
   const confirmations = {
+    score: {
+      mutation: scoreMutation,
+      label: "mutation.scoreRound",
+      text: "shortlist.scoreConfirm",
+      action: "action.scoreRound",
+    },
     shortlist: {
       mutation: shortlistMutation,
       label: "mutation.shortlist",
@@ -86,22 +86,20 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
     <Paper className={classes.paper}>
       <Typography className={classes.title}>{formatMessage("shortlist.title")}</Typography>
       <Grid container alignItems="flex-end" className={classes.item}>
-        <Grid item xs={12} sm={6} md={3} className={classes.item}>
-          <TextInput
+        <Grid item xs={12} md={6} className={classes.item}>
+          <SelectInput
             module={APPRAISAL_MODULE_NAME}
-            label="appraisal.programme"
-            value={draft.programme}
-            onChange={(value) => setDraft({ ...draft, programme: value })}
-            onBlur={apply}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6} md={3} className={classes.item}>
-          <TextInput
-            module={APPRAISAL_MODULE_NAME}
-            label="appraisal.round"
-            value={draft.round}
-            onChange={(value) => setDraft({ ...draft, round: value })}
-            onBlur={apply}
+            label="shortlist.round"
+            value={programme && round ? { programme, round } : null}
+            options={rounds.map((option) => ({
+              value: { programme: option.programme, round: option.round },
+              label: formatMessageWithValues(option.configured ? "shortlist.roundCurrent" : "shortlist.roundOption", {
+                programme: option.programme,
+                round: option.round,
+                count: option.appraisals,
+              }),
+            }))}
+            onChange={(value) => value && onChange(value)}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={3} className={classes.item}>
@@ -111,7 +109,7 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
               color="primary"
               variant="outlined"
               disabled={!ready || busy}
-              onClick={() => perform(scoreMutation, "mutation.scoreRound")}
+              onClick={() => setConfirming("score")}
             >
               {formatMessage("action.scoreRound")}
             </Button>
