@@ -1,6 +1,6 @@
 import { formatGraphQLError, formatServerError, pageInfo, parseData } from "@openimis/fe-core";
 
-import { SEARCH_APPRAISALS } from "./actions";
+import { SEARCH_APPRAISALS, SEARCH_RANKING } from "./actions";
 
 const INITIAL_STATE = {
   fetchingAppraisals: false,
@@ -9,6 +9,12 @@ const INITIAL_STATE = {
   appraisals: [],
   appraisalsPageInfo: {},
   appraisalsTotalCount: 0,
+  fetchingRanking: false,
+  fetchedRanking: false,
+  errorRanking: null,
+  ranking: [],
+  rankingPageInfo: {},
+  rankingTotalCount: 0,
 };
 
 function reducer(state = INITIAL_STATE, action) {
@@ -27,6 +33,20 @@ function reducer(state = INITIAL_STATE, action) {
       };
     case `${SEARCH_APPRAISALS}_ERR`:
       return { ...state, fetchingAppraisals: false, errorAppraisals: formatServerError(action.payload) };
+    case `${SEARCH_RANKING}_REQ`:
+      return { ...state, fetchingRanking: true, fetchedRanking: false, ranking: [], errorRanking: null };
+    case `${SEARCH_RANKING}_RESP`:
+      return {
+        ...state,
+        fetchingRanking: false,
+        fetchedRanking: true,
+        ranking: parseData(action.payload.data.appraisal),
+        rankingPageInfo: pageInfo(action.payload.data.appraisal),
+        rankingTotalCount: action.payload.data.appraisal?.totalCount ?? 0,
+        errorRanking: formatGraphQLError(action.payload),
+      };
+    case `${SEARCH_RANKING}_ERR`:
+      return { ...state, fetchingRanking: false, errorRanking: formatServerError(action.payload) };
     default:
       return state;
   }

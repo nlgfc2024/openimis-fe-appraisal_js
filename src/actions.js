@@ -6,10 +6,12 @@ import {
   ELIGIBILITY_INELIGIBLE,
   GQL_APPRAISAL_QUERY,
   ITEM_KIND_ELIGIBILITY,
+  ITEM_KIND_SCORE,
   OPEN_STATUSES,
 } from "./constants";
 
 export const SEARCH_APPRAISALS = "APPRAISAL_APPRAISALS";
+export const SEARCH_RANKING = "APPRAISAL_RANKING";
 
 const APPRAISAL_LIST_PROJECTION = [
   "id",
@@ -29,6 +31,23 @@ const APPRAISAL_LIST_PROJECTION = [
 export function fetchAppraisals(params) {
   return graphql(formatPageQueryWithCount(GQL_APPRAISAL_QUERY, params, APPRAISAL_LIST_PROJECTION), SEARCH_APPRAISALS);
 }
+
+// The ranking also needs the applicant's location up to the city, and the last shortlist run (jsonExt)
+const RANKING_PROJECTION = [
+  ...APPRAISAL_LIST_PROJECTION.filter((field) => !field.startsWith("individual")),
+  "jsonExt",
+  "individual { id firstName lastName jsonExt location { name type parent { name type parent { name type " +
+    "parent { name type } } } } }",
+];
+
+export function fetchRanking(params) {
+  return graphql(formatPageQueryWithCount(GQL_APPRAISAL_QUERY, params, RANKING_PROJECTION), SEARCH_RANKING);
+}
+
+// The programme and round of the latest appraisal, to open the shortlist screen on
+export const LATEST_ROUND_QUERY = `query AppraisalLatestRound {
+  appraisal(first: 1, orderBy: ["-date_created"]) { edges { node { programme round } } }
+}`;
 
 // Counts for the summary cards, one request; status and eligibility are GraphQL enums
 export const APPRAISAL_SUMMARY_QUERY = `query AppraisalSummary {
@@ -50,6 +69,10 @@ export const APPRAISAL_QUERY = `query AppraisalDetail($id: ID) {
         id uuid key label systemResult basis basisChanged officerResult evidence comment decidedBy decidedAt
         result isOverridden
       }
+      scoreItems: items(kind: "${ITEM_KIND_SCORE}") {
+        id uuid key label systemPoints basis basisChanged officerPoints evidence comment decidedBy decidedAt
+        points maxPoints isOverridden
+      }
       history { date user subject changes }
     } }
   }
@@ -63,4 +86,16 @@ export const DECIDE_ELIGIBILITY_MUTATION = `mutation DecideAppraisalEligibility(
   $input: DecideAppraisalEligibilityMutationInput!
 ) {
   decideAppraisalEligibility(input: $input) { internalId clientMutationId }
+}`;
+
+export const SCORE_APPRAISALS_MUTATION = `mutation ScoreAppraisals($input: ScoreAppraisalsMutationInput!) {
+  scoreAppraisals(input: $input) { internalId clientMutationId }
+}`;
+
+export const ANSWER_SCORE_MUTATION = `mutation AnswerAppraisalScore($input: AnswerAppraisalScoreMutationInput!) {
+  answerAppraisalScore(input: $input) { internalId clientMutationId }
+}`;
+
+export const SHORTLIST_MUTATION = `mutation ShortlistAppraisals($input: ShortlistAppraisalsMutationInput!) {
+  shortlistAppraisals(input: $input) { internalId clientMutationId }
 }`;
