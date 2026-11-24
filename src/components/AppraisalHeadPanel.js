@@ -2,9 +2,9 @@ import React from "react";
 import { Divider, Grid, Typography } from "@material-ui/core";
 import { TextInput, useModulesManager, useTranslations } from "@openimis/fe-core";
 
-import { APPRAISAL_MODULE_NAME, RESULT_NO, RESULT_PENDING, RESULT_YES } from "../constants";
+import { APPRAISAL_MODULE_NAME, EMPTY_VALUE, RESULT_NO, RESULT_PENDING, RESULT_YES } from "../constants";
 import useAppraisalStyles from "../styles";
-import { parseJson, previewDecision } from "../util/appraisal";
+import { formatPoints, parseJson, previewDecision } from "../util/appraisal";
 import StatCard from "./StatCard";
 
 function AppraisalHeadPanel({ edited: appraisal }) {
@@ -17,7 +17,12 @@ function AppraisalHeadPanel({ edited: appraisal }) {
   const count = (result) => items.filter((item) => item.result === result).length;
   const field = (label, value, xs = 3) => (
     <Grid item xs={12} sm={6} md={xs} className={classes.item}>
-      <TextInput module={APPRAISAL_MODULE_NAME} label={label} value={value ?? ""} readOnly />
+      <TextInput
+        module={APPRAISAL_MODULE_NAME}
+        label={label}
+        value={value === null || value === undefined || value === "" ? EMPTY_VALUE : value}
+        readOnly
+      />
     </Grid>
   );
   const decision = appraisal.eligibility || preview.decision;
@@ -49,6 +54,8 @@ function AppraisalHeadPanel({ edited: appraisal }) {
           appraisal.eligibility ? formatMessage(`eligibility.${appraisal.eligibility}`) : "",
         )}
         {field("appraisal.koboId", appraisal.koboId)}
+        {field("appraisal.score", appraisal.score === null || appraisal.score === undefined ? "" : formatPoints(appraisal.score))}
+        {field("appraisal.rank", appraisal.rank)}
       </Grid>
       <Divider />
       <Grid container className={classes.item}>

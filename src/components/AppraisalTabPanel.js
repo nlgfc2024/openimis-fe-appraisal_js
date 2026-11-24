@@ -11,13 +11,27 @@ import {
   TAB_CHECKLIST,
   TAB_DOCUMENTS,
   TAB_HISTORY,
+  TAB_SCORE,
 } from "../constants";
 import useAppraisalStyles from "../styles";
 import AppraisalHistory from "./AppraisalHistory";
 import DecisionPanel from "./DecisionPanel";
 import EligibilityChecklist from "./EligibilityChecklist";
+import ScoreTable from "./ScoreTable";
 
-function AppraisalTabPanel({ edited: appraisal, canScreen, onAnswer, onDecide, deciding, decisionError }) {
+function AppraisalTabPanel({
+  edited: appraisal,
+  canScreen,
+  onAnswer,
+  onDecide,
+  deciding,
+  decisionError,
+  canScore,
+  canRescore,
+  onScore,
+  onRescore,
+  rescoring,
+}) {
   const classes = useAppraisalStyles();
   const modulesManager = useModulesManager();
   const { formatMessage } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
@@ -51,6 +65,17 @@ function AppraisalTabPanel({ edited: appraisal, canScreen, onAnswer, onDecide, d
             onDecide={onDecide}
           />
         </>
+      )}
+      {tab === TAB_SCORE && (
+        <ScoreTable
+          appraisal={appraisal}
+          items={appraisal.scoreItems || []}
+          canScore={canScore}
+          canRescore={canRescore}
+          onScore={onScore}
+          onRescore={onRescore}
+          rescoring={rescoring}
+        />
       )}
       {tab === TAB_APPLICATION && (
         <Box className={classes.section}>
