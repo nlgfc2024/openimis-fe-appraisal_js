@@ -3,13 +3,21 @@ import {
   ANSWER_FIELD_EVIDENCE,
   ANSWER_FIELD_POINTS,
   ANSWER_FIELD_RESULT,
+  ANSWER_FIELD_ACTION,
+  ANSWER_FIELD_REASON,
   CITY_LOCATION_TYPE,
+  DOCUMENT_FIELD_STATUS,
+  DOCUMENT_REJECTED,
+  DOCUMENT_VERIFIED,
+  RETURNABLE_STATUSES,
+  STATUS_RETURNED,
   STATUS_ELIGIBLE,
   STATUS_SCORED,
   ELIGIBILITY_CLARIFICATION,
   ELIGIBILITY_ELIGIBLE,
   ELIGIBILITY_INELIGIBLE,
   EMPTY_VALUE,
+  HISTORY_HIDDEN_FIELDS,
   OPEN_STATUSES,
   RESULT_NO,
   RESULT_PENDING,
@@ -77,9 +85,12 @@ export function refusalCode(error) {
   return match ? match[1] : null;
 }
 
-/** Changes in the history as "field: old -> new" lines, leaving out bookkeeping fields. */
-export function describeChanges(changes) {
-  return parseJsonList(changes).map(({ field, old, new: value }) => `${field}: ${show(old)} → ${show(value)}`);
+/** Changes in the history as "field: old -> new" lines, leaving out bookkeeping fields; format(field, value) names
+ * coded values. */
+export function describeChanges(changes, format = (field, value) => value) {
+  return parseJsonList(changes)
+    .filter(({ field }) => !HISTORY_HIDDEN_FIELDS.includes(field))
+    .map(({ field, old, new: value }) => `${field}: ${show(old, field, format)} → ${show(value, field, format)}`);
 }
 
 function parseJsonList(value) {
@@ -92,9 +103,10 @@ function parseJsonList(value) {
   }
 }
 
-function show(value) {
+function show(value, field, format) {
   if (value === null || value === undefined || value === "") return EMPTY_VALUE;
-  return typeof value === "object" ? JSON.stringify(value) : String(value);
+  if (typeof value === "object") return JSON.stringify(value);
+  return String(format(field, value));
 }
 
 /** What an officer's points need (backend appraisal.scoring.answer_score): a number from 0 to the maximum, and the
@@ -142,4 +154,36 @@ export function formatPoints(value) {
   if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
   return Number.isNaN(number) ? String(value) : String(Math.round(number * 100) / 100);
+}
+
+/** What a document review needs (backend appraisal.documents.review_document): a reason to reject. */
+export function documentReviewProblem({ status, comment }) {
+  if (!status) return DOCUMENT_FIELD_STATUS;
+  if (status === DOCUMENT_REJECTED && !(comment || "").trim()) return ANSWER_FIELD_COMMENT;
+  return null;
+}
+
+/** What a return needs (backend appraisal.returns.return_appraisal): the reason and the action required. */
+export function returnProblem({ reason, actionRequired }) {
+  if (!(reason || "").trim()) return ANSWER_FIELD_REASON;
+  if (!(actionRequired || "").trim()) return ANSWER_FIELD_ACTION;
+  return null;
+}
+
+/** Whether the appraisal can be returned for action now. */
+export function isReturnable(appraisal) {
+  return RETURNABLE_STATUSES.includes(appraisal?.status);
+}
+
+/** The appraisal's open return, when it is returned. */
+export function openReturn(appraisal) {
+  if (appraisal?.status !== STATUS_RETURNED) return null;
+  return (appraisal.returns || []).find((item) => item.isOpen) || null;
+}
+
+/** Required documents not verified and rejected ones: [{label, status}] (backend documents_problems). */
+export function documentProblems(documents) {
+  return (documents || [])
+    .filter((doc) => doc.status === DOCUMENT_REJECTED || (doc.required && doc.status !== DOCUMENT_VERIFIED))
+    .map((doc) => ({ label: doc.label, status: doc.status }));
 }

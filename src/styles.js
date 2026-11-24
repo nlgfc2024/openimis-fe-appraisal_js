@@ -32,6 +32,7 @@ const useAppraisalStyles = makeStyles((theme) => ({
   secondaryButton: theme.dialog?.secondaryButton ?? {},
   muted: { color: theme.palette?.text?.secondary },
   warning: { color: theme.palette?.error?.main },
+  rejectButton: { color: theme.palette?.error?.main, borderColor: theme.palette?.error?.main },
   chips: { display: "flex", gap: theme.spacing(1), flexWrap: "wrap", alignItems: "center" },
 }));
 

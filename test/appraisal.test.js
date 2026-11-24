@@ -86,6 +86,13 @@ test("parseJson and describeChanges", () => {
     { field: "basis", old: { a: 1 }, new: { a: 2 } },
   ]);
   assert.deepStrictEqual(describeChanges(changes), ["officer_result: — → YES", 'basis: {"a":1} → {"a":2}']);
+  const hidden = JSON.stringify([
+    { field: "config_snapshot", old: {}, new: { round: "R1" } },
+    { field: "status", old: "RETURNED", new: "DESK_SCREENING" },
+  ]);
+  assert.deepStrictEqual(describeChanges(hidden, (field, value) => (field === "status" ? value.toLowerCase() : value)), [
+    "status: returned → desk_screening",
+  ]);
 });
 
 test("scoreProblem mirrors the backend rules", () => {
@@ -120,4 +127,30 @@ test("shortlistRun and formatPoints", () => {
   assert.strictEqual(formatPoints("31.00"), "31");
   assert.strictEqual(formatPoints("12.50"), "12.5");
   assert.strictEqual(formatPoints(null), null);
+});
+
+test("document reviews and returns", () => {
+  const { documentReviewProblem, documentProblems, isReturnable, openReturn, returnProblem } = require("../src/util/appraisal");
+  assert.strictEqual(documentReviewProblem({}), "status");
+  assert.strictEqual(documentReviewProblem({ status: "REJECTED", comment: " " }), "comment");
+  assert.strictEqual(documentReviewProblem({ status: "REJECTED", comment: "Blurred" }), null);
+  assert.strictEqual(documentReviewProblem({ status: "VERIFIED" }), null);
+  assert.strictEqual(returnProblem({ reason: "", actionRequired: "x" }), "reason");
+  assert.strictEqual(returnProblem({ reason: "x", actionRequired: " " }), "actionRequired");
+  assert.strictEqual(returnProblem({ reason: "x", actionRequired: "y" }), null);
+  assert.strictEqual(isReturnable({ status: "SCORED" }), true);
+  assert.strictEqual(isReturnable({ status: "SHORTLISTED" }), false);
+  const open = { isOpen: true, reason: "Missing" };
+  assert.strictEqual(openReturn({ status: "RETURNED", returns: [{ isOpen: false }, open] }), open);
+  assert.strictEqual(openReturn({ status: "DESK_SCREENING", returns: [open] }), null);
+  const docs = [
+    { label: "ID", required: true, status: "VERIFIED" },
+    { label: "Statement", required: true, status: "OUTSTANDING" },
+    { label: "Other", required: false, status: "REJECTED" },
+    { label: "Extra", required: false, status: "SUBMITTED" },
+  ];
+  assert.deepStrictEqual(documentProblems(docs), [
+    { label: "Statement", status: "OUTSTANDING" },
+    { label: "Other", status: "REJECTED" },
+  ]);
 });

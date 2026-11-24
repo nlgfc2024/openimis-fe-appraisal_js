@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import RefreshIcon from "@material-ui/icons/Refresh";
+import ReturnIcon from "@material-ui/icons/AssignmentReturn";
 import {
   Form,
   Helmet,
@@ -18,20 +19,29 @@ import {
   ANSWER_SCORE_MUTATION,
   APPRAISAL_QUERY,
   DECIDE_ELIGIBILITY_MUTATION,
+  RESUBMIT_APPRAISAL_MUTATION,
+  RETURN_APPRAISAL_MUTATION,
+  REVIEW_DOCUMENT_MUTATION,
   SCORE_APPRAISALS_MUTATION,
 } from "../actions";
 import AnswerItemDialog from "../components/AnswerItemDialog";
 import AppraisalHeadPanel from "../components/AppraisalHeadPanel";
 import AppraisalTabPanel from "../components/AppraisalTabPanel";
+import DocumentRejectDialog from "../components/DocumentRejectDialog";
+import { ResubmitDialog, ReturnDialog } from "../components/ReturnDialogs";
 import ScoreDialog from "../components/ScoreDialog";
 import {
   APPRAISAL_MODULE_NAME,
+  DOCUMENT_REJECTED,
+  DOCUMENT_VERIFIED,
+  RIGHT_APPRAISAL_RETURN,
+  RIGHT_APPRAISAL_REVIEW_DOCUMENTS,
   RIGHT_APPRAISAL_SCORE,
   RIGHT_APPRAISAL_SCREEN,
   RIGHT_APPRAISAL_VIEW,
 } from "../constants";
 import useAppraisalStyles from "../styles";
-import { isScorable, isScoringOpen, isScreeningOpen, refusalCode } from "../util/appraisal";
+import { isReturnable, isScorable, isScoringOpen, isScreeningOpen, openReturn, refusalCode } from "../util/appraisal";
 
 function AppraisalPage() {
   const classes = useAppraisalStyles();
@@ -46,6 +56,12 @@ function AppraisalPage() {
   const [scoring, setScoring] = useState(null);
   const [scoreError, setScoreError] = useState(null);
   const [rescoreError, setRescoreError] = useState(null);
+  const [rejecting, setRejecting] = useState(null);
+  const [reviewError, setReviewError] = useState(null);
+  const [returning, setReturning] = useState(false);
+  const [returnError, setReturnError] = useState(null);
+  const [resubmitting, setResubmitting] = useState(false);
+  const [resubmitError, setResubmitError] = useState(null);
 
   const { isLoading, error, data, refetch } = useGraphqlQuery(
     APPRAISAL_QUERY,
@@ -56,6 +72,9 @@ function AppraisalPage() {
   const decideMutation = useGraphqlMutation(DECIDE_ELIGIBILITY_MUTATION);
   const scoreMutation = useGraphqlMutation(ANSWER_SCORE_MUTATION);
   const rescoreMutation = useGraphqlMutation(SCORE_APPRAISALS_MUTATION);
+  const reviewMutation = useGraphqlMutation(REVIEW_DOCUMENT_MUTATION);
+  const returnMutation = useGraphqlMutation(RETURN_APPRAISAL_MUTATION);
+  const resubmitMutation = useGraphqlMutation(RESUBMIT_APPRAISAL_MUTATION);
 
   if (!rights.includes(RIGHT_APPRAISAL_VIEW)) return null;
   const appraisal = data?.appraisal?.edges?.[0]?.node;
@@ -63,6 +82,9 @@ function AppraisalPage() {
   const canScreen = rights.includes(RIGHT_APPRAISAL_SCREEN) && isScreeningOpen(appraisal);
   const canScore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScoringOpen(appraisal);
   const canRescore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScorable(appraisal);
+  const canReviewDocuments = rights.includes(RIGHT_APPRAISAL_REVIEW_DOCUMENTS) && isScreeningOpen(appraisal);
+  const canReturn = rights.includes(RIGHT_APPRAISAL_RETURN) && isReturnable(appraisal);
+  const canResubmit = rights.includes(RIGHT_APPRAISAL_RETURN) && !!openReturn(appraisal);
   const refusal = (err) => {
     const code = refusalCode(err);
     return code ? formatMessage(`refusal.${code}`) : String(err?.message || err);
@@ -131,6 +153,61 @@ function AppraisalPage() {
     }
   };
 
+  const submit = async (mutation, variables, setError, close) => {
+    setError(null);
+    try {
+      await mutation.mutate(variables);
+      close();
+      refetch();
+    } catch (err) {
+      setError(refusal(err));
+    }
+  };
+
+  const reviewDocument = (document, status, comment = "") =>
+    submit(
+      reviewMutation,
+      {
+        appraisalId: appraisal.uuid,
+        documentId: document.documentId,
+        status,
+        comment,
+        clientMutationLabel: formatMessageWithValues("mutation.reviewDocument", {
+          status: formatMessage(`documentStatus.${status}`),
+          document: document.label,
+          applicant,
+        }),
+      },
+      setReviewError,
+      () => setRejecting(null),
+    );
+
+  const saveReturn = (details) =>
+    submit(
+      returnMutation,
+      {
+        id: appraisal.uuid,
+        reason: details.reason,
+        actionRequired: details.actionRequired,
+        clientMutationLabel: formatMessageWithValues("mutation.return", { applicant }),
+      },
+      setReturnError,
+      () => setReturning(false),
+    );
+
+  const saveResubmit = (note) =>
+    submit(
+      resubmitMutation,
+      { id: appraisal.uuid, note, clientMutationLabel: formatMessageWithValues("mutation.resubmit", { applicant }) },
+      setResubmitError,
+      () => setResubmitting(false),
+    );
+
+  const actions = [{ doIt: refetch, icon: <RefreshIcon />, tooltip: formatMessage("action.refresh") }];
+  if (canReturn) {
+    actions.unshift({ doIt: () => setReturning(true), icon: <ReturnIcon />, tooltip: formatMessage("action.return") });
+  }
+
   return (
     <div className={classes.page}>
       <Helmet title={formatMessageWithValues("appraisal.title", { applicant })} />
@@ -143,7 +220,7 @@ function AppraisalPage() {
           edited={appraisal}
           readOnly
           back={() => history.goBack()}
-          actions={[{ doIt: refetch, icon: <RefreshIcon />, tooltip: formatMessage("action.refresh") }]}
+          actions={actions}
           HeadPanel={AppraisalHeadPanel}
           Panels={[AppraisalTabPanel]}
           canScreen={canScreen}
@@ -156,6 +233,16 @@ function AppraisalPage() {
           onScore={setScoring}
           onRescore={rescore}
           rescoring={rescoreMutation.isLoading}
+          canReviewDocuments={canReviewDocuments}
+          reviewingDocument={reviewMutation.isLoading}
+          reviewError={rejecting ? null : reviewError}
+          onVerifyDocument={(document) => reviewDocument(document, DOCUMENT_VERIFIED)}
+          onRejectDocument={(document) => {
+            setReviewError(null);
+            setRejecting(document);
+          }}
+          canResubmit={canResubmit}
+          onResubmit={() => setResubmitting(true)}
         />
       )}
       {rescoreError && <ProgressOrError error={rescoreError} />}
@@ -180,6 +267,37 @@ function AppraisalPage() {
           setScoreError(null);
         }}
         onSave={saveScore}
+      />
+      <DocumentRejectDialog
+        document={rejecting}
+        saving={reviewMutation.isLoading}
+        error={reviewError}
+        onCancel={() => {
+          setRejecting(null);
+          setReviewError(null);
+        }}
+        onSave={(comment) => reviewDocument(rejecting, DOCUMENT_REJECTED, comment)}
+      />
+      <ReturnDialog
+        open={returning}
+        applicant={applicant}
+        saving={returnMutation.isLoading}
+        error={returnError}
+        onCancel={() => {
+          setReturning(false);
+          setReturnError(null);
+        }}
+        onSave={saveReturn}
+      />
+      <ResubmitDialog
+        open={resubmitting}
+        saving={resubmitMutation.isLoading}
+        error={resubmitError}
+        onCancel={() => {
+          setResubmitting(false);
+          setResubmitError(null);
+        }}
+        onSave={saveResubmit}
       />
     </div>
   );

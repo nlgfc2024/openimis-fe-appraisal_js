@@ -20,7 +20,8 @@
     "decision": "Decision",
     "nationalId": "National ID",
     "koboId": "Kobo submission",
-    "rank": "Rank"
+    "rank": "Rank",
+    "documents": "Documents"
   },
   "filter": {
     "search": "Name or national ID",
@@ -89,7 +90,8 @@
     "changed": "Answer again, the application changed: {items}",
     "comment": "Decision comment",
     "title": "Eligibility decision",
-    "blocked": "Not yet"
+    "blocked": "Not yet",
+    "documents": "The document check is not complete: {count, plural, one {# document needs} other {# documents need}} review on the <link>Documents tab</link>."
   },
   "history": {
     "date": "Date",
@@ -98,7 +100,8 @@
     "changes": "Changes",
     "appraisal": "Appraisal",
     "created": "Created",
-    "none": "No changes yet."
+    "none": "No changes yet.",
+    "return": "Return for action"
   },
   "action": {
     "answer": "Answer",
@@ -112,7 +115,12 @@
     "scoreNow": "Score now",
     "scoreRound": "Score the round",
     "shortlist": "Run shortlist",
-    "ranking": "Ranking and shortlist"
+    "ranking": "Ranking and shortlist",
+    "review": "Review",
+    "return": "Return for action",
+    "resubmit": "Resubmit",
+    "verify": "Verify",
+    "reject": "Reject"
   },
   "mutation": {
     "answer": "Answer \"{item}\" for {applicant}",
@@ -120,7 +128,10 @@
     "score": "Score \"{item}\" for {applicant}",
     "rescore": "Rescore {applicant}",
     "scoreRound": "Score {programme} {round}",
-    "shortlist": "Shortlist {programme} {round}"
+    "shortlist": "Shortlist {programme} {round}",
+    "reviewDocument": "{status} \"{document}\" for {applicant}",
+    "return": "Return {applicant} for action",
+    "resubmit": "Resubmit {applicant}"
   },
   "refusal": {
     "not_found": "This appraisal is not available to you.",
@@ -137,7 +148,14 @@
     "nothing_to_shortlist": "There are no scored applicants in this round.",
     "scores_changed": "Some applications changed since an officer set points: review them first.",
     "scores_missing": "Some applicants have no score yet.",
-    "no_shortlist_rule": "The programme has no shortlist places configured."
+    "no_shortlist_rule": "The programme has no shortlist places configured.",
+    "documents_incomplete": "Verify every required document first.",
+    "rejection_reason_required": "Say why the document is rejected.",
+    "document_not_found": "This document is no longer part of the application.",
+    "invalid_document_status": "Choose Verified or Rejected.",
+    "not_returnable": "This appraisal can't be returned in its current status.",
+    "return_details_required": "Give the reason and the action required.",
+    "not_returned": "This appraisal is not returned for action."
   },
   "emptyLabel": " ",
   "summary": {
@@ -162,7 +180,8 @@
     "application": "Application",
     "documents": "Documents",
     "history": "History",
-    "score": "Desk score"
+    "score": "Desk score",
+    "returns": "Returns"
   },
   "score": {
     "indicator": "Indicator",
@@ -207,5 +226,57 @@
     "shortlisted": "Shortlisted",
     "confirmTitle": "Shortlist {programme} {round}?",
     "confirmMessage": "Scored applicants are ranked by score, then submission time, and the top places of each city are shortlisted for physical due diligence. Running it again replaces the previous shortlist."
+  },
+  "documents": {
+    "reviewed": "Reviewed by",
+    "required": "Required",
+    "optional": "Optional",
+    "verified": "Verified",
+    "toReview": "To review",
+    "rejected": "Rejected",
+    "outstanding": "Outstanding",
+    "complete": "Complete",
+    "incomplete": "Incomplete",
+    "problem": "{label} ({status})",
+    "toVerify": "{count, plural, one {# required document} other {# required documents}} still to verify",
+    "review": "Review",
+    "reviewedAs": "{status} by {user}",
+    "notReviewed": "Not reviewed yet"
+  },
+  "documentStatus": {
+    "SUBMITTED": "Submitted",
+    "VERIFIED": "Verified",
+    "REJECTED": "Rejected",
+    "OUTSTANDING": "Outstanding"
+  },
+  "returns": {
+    "returned": "Returned by",
+    "stage": "Stage",
+    "reason": "Reason",
+    "actionRequired": "Action required",
+    "resubmitted": "Resubmitted by",
+    "note": "Resubmission note",
+    "open": "Awaiting the applicant",
+    "none": "This appraisal has not been returned for action.",
+    "banner": "Returned for action by {user}, {date}",
+    "bannerDetails": "{reason} Action required: {action}"
+  },
+  "returnDialog": {
+    "title": "Return {applicant} for action",
+    "help": "The appraisal pauses until the applicant provides what is asked; a new Kobo application resubmits it automatically.",
+    "required": {
+      "reason": "Give the reason for returning.",
+      "actionRequired": "Say what the applicant must do."
+    }
+  },
+  "resubmitDialog": {
+    "title": "Resubmit for appraisal",
+    "help": "The appraisal goes back to the stage it was returned from."
+  },
+  "rejectDialog": {
+    "title": "Reject {document}",
+    "reason": "Reason",
+    "help": "What is wrong with the document; the applicant is told when the appraisal is returned for action.",
+    "required": "Say why the document is rejected."
   }
 }
