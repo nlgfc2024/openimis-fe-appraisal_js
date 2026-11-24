@@ -23,6 +23,7 @@ import {
   RIGHT_APPRAISAL_VIEW,
 } from "../constants";
 import useAppraisalStyles from "../styles";
+import { isAppraisalConfigured } from "../util/configuration";
 import { groupLabel, humanize } from "../util/appraisal";
 
 function Section({ title, children, md = 6 }) {
@@ -54,7 +55,7 @@ function ReportsPage() {
   const modulesManager = useModulesManager();
   const { formatMessage, formatMessageWithValues } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
   const rights = useSelector((state) => state.core?.user?.i_user?.rights ?? []);
-  const allowed = rights.includes(RIGHT_APPRAISAL_VIEW);
+  const allowed = rights.includes(RIGHT_APPRAISAL_VIEW) && isAppraisalConfigured(modulesManager);
   const latest = useGraphqlQuery(LATEST_ROUND_QUERY, {}, { skip: !allowed });
   const [selection, setSelection] = useState({ programme: "", round: "" });
   const [draft, setDraft] = useState(selection);
