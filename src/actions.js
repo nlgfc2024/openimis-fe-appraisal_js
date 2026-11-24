@@ -95,6 +95,10 @@ export const DECIDE_ELIGIBILITY_MUTATION = `mutation DecideAppraisalEligibility(
   decideAppraisalEligibility(input: $input) { internalId clientMutationId }
 }`;
 
+export const APPRAISAL_ROUNDS_QUERY = `query AppraisalRounds {
+  appraisalRounds { programme round configured appraisals }
+}`;
+
 export const SCORE_APPRAISALS_MUTATION = `mutation ScoreAppraisals($input: ScoreAppraisalsMutationInput!) {
   scoreAppraisals(input: $input) { internalId clientMutationId }
 }`;

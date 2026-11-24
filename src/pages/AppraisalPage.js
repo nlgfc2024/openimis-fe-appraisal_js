@@ -27,10 +27,7 @@ import AppraisalHeadPanel from "../components/AppraisalHeadPanel";
 import AppraisalTabPanel from "../components/AppraisalTabPanel";
 import ReopenDialog from "../components/ReopenDialog";
 import ScoreDialog from "../components/ScoreDialog";
-import {
-  APPRAISAL_MODULE_NAME,
-  RIGHT_APPRAISAL_VIEW,
-} from "../constants";
+import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_VIEW } from "../constants";
 import useAppraisalStyles from "../styles";
 import { isAppraisalConfigured } from "../util/configuration";
 import { refusalCode } from "../util/appraisal";
@@ -65,11 +62,11 @@ function AppraisalPage() {
   if (!rights.includes(RIGHT_APPRAISAL_VIEW) || !isAppraisalConfigured(modulesManager)) return null;
   const appraisal = data?.appraisal?.edges?.[0]?.node;
   const applicant = `${appraisal?.individual?.firstName ?? ""} ${appraisal?.individual?.lastName ?? ""}`.trim();
-  RIGHT_APPRAISAL_VIEW,
-} from "../constants";
-import useAppraisalStyles from "../styles";
-import { isAppraisalConfigured } from "../util/configuration";
-import { refusalCode } from "../util/appraisal";
+  // What the user may do now comes from the backend, worked out by the same rules as the mutations
+  const canScreen = !!appraisal?.canScreen;
+  const canReopen = !!appraisal?.canReopen;
+  const canScore = !!appraisal?.canScore;
+  const canRescore = !!appraisal?.canRescore;
   const refusal = (err) => {
     const code = refusalCode(err);
     return code ? formatMessage(`refusal.${code}`) : String(err?.message || err);
