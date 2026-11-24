@@ -10,7 +10,9 @@ import {
   ELIGIBILITY_ELIGIBLE,
   ELIGIBILITY_INELIGIBLE,
   EMPTY_VALUE,
+  JSON_EXT_REOPENED,
   OPEN_STATUSES,
+  REOPENABLE_STATUSES,
   RESULT_NO,
   RESULT_PENDING,
   RESULT_YES,
@@ -25,6 +27,17 @@ export function parseJson(value) {
   } catch (e) {
     return {};
   }
+}
+
+/** Whether a recorded eligibility decision can be reopened to correct it. */
+export function isReopenable(appraisal) {
+  return !!appraisal && REOPENABLE_STATUSES.includes(appraisal.status);
+}
+
+/** The latest reopening of the appraisal's decision ({from, by, at, reason}), or null. */
+export function lastReopening(appraisal) {
+  const reopened = parseJson(appraisal?.jsonExt)[JSON_EXT_REOPENED];
+  return Array.isArray(reopened) && reopened.length ? reopened[reopened.length - 1] : null;
 }
 
 /** Whether items can be answered and a decision recorded: the backend's open screening statuses. */

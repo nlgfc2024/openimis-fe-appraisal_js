@@ -17,6 +17,8 @@ const {
   refusalCode,
   awaitingPoints,
   shortlistClosed,
+  isReopenable,
+  lastReopening,
 } = require("../src/util/appraisal");
 
 const item = (key, result, extra = {}) => ({ key, result, basisChanged: false, ...extra });
@@ -142,4 +144,23 @@ test("shortlistClosed reads who closed the round", () => {
   });
   assert.strictEqual(shortlistClosed({ groups: [] }), null);
   assert.strictEqual(shortlistClosed(null), null);
+});
+
+test("a recorded decision can be reopened, a scored or shortlisted one can't", () => {
+  assert.strictEqual(isReopenable({ status: "ELIGIBLE" }), true);
+  assert.strictEqual(isReopenable({ status: "INELIGIBLE" }), true);
+  for (const status of ["DESK_SCREENING", "SCORED", "SHORTLISTED", "RETURNED"]) {
+    assert.strictEqual(isReopenable({ status }), false, status);
+  }
+  assert.strictEqual(isReopenable(null), false);
+});
+
+test("lastReopening reads the latest reopening from jsonExt", () => {
+  const reopened = [
+    { from: "INELIGIBLE", by: "a", at: "2026-11-24T10:00:00", reason: "first" },
+    { from: "ELIGIBLE", by: "b", at: "2026-11-24T11:00:00", reason: "second" },
+  ];
+  assert.deepStrictEqual(lastReopening({ jsonExt: JSON.stringify({ reopened }) }), reopened[1]);
+  assert.strictEqual(lastReopening({ jsonExt: "{}" }), null);
+  assert.strictEqual(lastReopening({}), null);
 });

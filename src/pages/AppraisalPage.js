@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import LockOpenIcon from "@material-ui/icons/LockOpen";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import {
   Form,
@@ -18,20 +19,23 @@ import {
   ANSWER_SCORE_MUTATION,
   APPRAISAL_QUERY,
   DECIDE_ELIGIBILITY_MUTATION,
+  REOPEN_APPRAISAL_MUTATION,
   SCORE_APPRAISALS_MUTATION,
 } from "../actions";
 import AnswerItemDialog from "../components/AnswerItemDialog";
 import AppraisalHeadPanel from "../components/AppraisalHeadPanel";
 import AppraisalTabPanel from "../components/AppraisalTabPanel";
+import ReopenDialog from "../components/ReopenDialog";
 import ScoreDialog from "../components/ScoreDialog";
 import {
   APPRAISAL_MODULE_NAME,
+  RIGHT_APPRAISAL_RETURN,
   RIGHT_APPRAISAL_SCORE,
   RIGHT_APPRAISAL_SCREEN,
   RIGHT_APPRAISAL_VIEW,
 } from "../constants";
 import useAppraisalStyles from "../styles";
-import { isScorable, isScoringOpen, isScreeningOpen, refusalCode } from "../util/appraisal";
+import { isReopenable, isScorable, isScoringOpen, isScreeningOpen, refusalCode } from "../util/appraisal";
 
 function AppraisalPage() {
   const classes = useAppraisalStyles();
@@ -43,6 +47,8 @@ function AppraisalPage() {
   const [answering, setAnswering] = useState(null);
   const [answerError, setAnswerError] = useState(null);
   const [decisionError, setDecisionError] = useState(null);
+  const [reopening, setReopening] = useState(false);
+  const [reopenError, setReopenError] = useState(null);
   const [scoring, setScoring] = useState(null);
   const [scoreError, setScoreError] = useState(null);
   const [rescoreError, setRescoreError] = useState(null);
@@ -54,6 +60,7 @@ function AppraisalPage() {
   );
   const answerMutation = useGraphqlMutation(ANSWER_ITEM_MUTATION);
   const decideMutation = useGraphqlMutation(DECIDE_ELIGIBILITY_MUTATION);
+  const reopenMutation = useGraphqlMutation(REOPEN_APPRAISAL_MUTATION);
   const scoreMutation = useGraphqlMutation(ANSWER_SCORE_MUTATION);
   const rescoreMutation = useGraphqlMutation(SCORE_APPRAISALS_MUTATION);
 
@@ -61,6 +68,7 @@ function AppraisalPage() {
   const appraisal = data?.appraisal?.edges?.[0]?.node;
   const applicant = `${appraisal?.individual?.firstName ?? ""} ${appraisal?.individual?.lastName ?? ""}`.trim();
   const canScreen = rights.includes(RIGHT_APPRAISAL_SCREEN) && isScreeningOpen(appraisal);
+  const canReopen = rights.includes(RIGHT_APPRAISAL_RETURN) && isReopenable(appraisal);
   const canScore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScoringOpen(appraisal);
   const canRescore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScorable(appraisal);
   const refusal = (err) => {
@@ -131,6 +139,30 @@ function AppraisalPage() {
     }
   };
 
+  const reopen = async (reason) => {
+    setReopenError(null);
+    try {
+      await reopenMutation.mutate({
+        id: appraisal.uuid,
+        reason,
+        clientMutationLabel: formatMessageWithValues("mutation.reopen", { applicant }),
+      });
+      setReopening(false);
+      refetch();
+    } catch (err) {
+      setReopenError(refusal(err));
+    }
+  };
+
+  const actions = [{ doIt: refetch, icon: <RefreshIcon />, tooltip: formatMessage("action.refresh") }];
+  if (canReopen) {
+    actions.unshift({
+      doIt: () => setReopening(true),
+      icon: <LockOpenIcon />,
+      tooltip: formatMessage("action.reopen"),
+    });
+  }
+
   return (
     <div className={classes.page}>
       <Helmet title={formatMessageWithValues("appraisal.title", { applicant })} />
@@ -143,7 +175,7 @@ function AppraisalPage() {
           edited={appraisal}
           readOnly
           back={() => history.goBack()}
-          actions={[{ doIt: refetch, icon: <RefreshIcon />, tooltip: formatMessage("action.refresh") }]}
+          actions={actions}
           HeadPanel={AppraisalHeadPanel}
           Panels={[AppraisalTabPanel]}
           canScreen={canScreen}
@@ -180,6 +212,18 @@ function AppraisalPage() {
           setScoreError(null);
         }}
         onSave={saveScore}
+      />
+      <ReopenDialog
+        open={reopening}
+        applicant={applicant}
+        decision={appraisal?.eligibility ? formatMessage(`eligibility.${appraisal.eligibility}`) : ""}
+        saving={reopenMutation.isLoading}
+        error={reopenError}
+        onCancel={() => {
+          setReopening(false);
+          setReopenError(null);
+        }}
+        onSave={reopen}
       />
     </div>
   );

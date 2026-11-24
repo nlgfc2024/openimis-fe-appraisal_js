@@ -89,7 +89,8 @@
     "changed": "Answer again, the application changed: {items}",
     "comment": "Decision comment",
     "title": "Eligibility decision",
-    "blocked": "Not yet"
+    "blocked": "Not yet",
+    "reopened": "Reopened from {decision} by {user} on {date}"
   },
   "history": {
     "date": "Date",
@@ -113,7 +114,8 @@
     "scoreRound": "Score the round",
     "shortlist": "Run shortlist",
     "ranking": "Ranking and shortlist",
-    "closeShortlist": "Close the round"
+    "closeShortlist": "Close the round",
+    "reopen": "Reopen the decision"
   },
   "mutation": {
     "answer": "Answer \"{item}\" for {applicant}",
@@ -122,7 +124,8 @@
     "rescore": "Rescore {applicant}",
     "scoreRound": "Score {programme} {round}",
     "shortlist": "Shortlist {programme} {round}",
-    "closeShortlist": "Close the {programme} {round} shortlist"
+    "closeShortlist": "Close the {programme} {round} shortlist",
+    "reopen": "Reopen the eligibility decision for {applicant}"
   },
   "refusal": {
     "not_found": "This appraisal is not available to you.",
@@ -144,7 +147,9 @@
     "shortlist_outdated": "Some scored applicants aren't ranked yet: run the shortlist before closing the round.",
     "city_without_places": "Some applicants are in a city with no shortlist places configured.",
     "shortlist_rules_differ": "This round's appraisals were created under different shortlist rules; ask an administrator to settle them.",
-    "individual_not_updated": "The shortlist outcome couldn't be saved on an applicant's record."
+    "individual_not_updated": "The shortlist outcome couldn't be saved on an applicant's record.",
+    "not_reopenable": "Only an eligible or ineligible decision can be reopened, not one already scored or shortlisted.",
+    "reason_required": "Say why the decision is being corrected."
   },
   "emptyLabel": " ",
   "summary": {
@@ -222,5 +227,12 @@
     "closed": "Closed by {user}, {date}: this round's shortlist is final.",
     "closeConfirmTitle": "Close the {programme} {round} shortlist?",
     "closeConfirmMessage": "The shortlisted and not shortlisted applicants keep their outcome and the shortlist can't be run again for this round. This can't be undone here."
+  },
+  "reopen": {
+    "title": "Reopen the decision - {applicant}",
+    "help": "The {decision} decision is cleared and the appraisal goes back to desk screening, to answer and decide again.",
+    "reason": "Reason",
+    "reasonHelp": "Why the decision is being corrected; it is kept with the appraisal.",
+    "required": "Give the reason for reopening."
   }
 }

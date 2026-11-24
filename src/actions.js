@@ -82,6 +82,10 @@ export const ANSWER_ITEM_MUTATION = `mutation AnswerAppraisalItem($input: Answer
   answerAppraisalItem(input: $input) { internalId clientMutationId }
 }`;
 
+export const REOPEN_APPRAISAL_MUTATION = `mutation ReopenAppraisal($input: ReopenAppraisalMutationInput!) {
+  reopenAppraisal(input: $input) { internalId clientMutationId }
+}`;
+
 export const DECIDE_ELIGIBILITY_MUTATION = `mutation DecideAppraisalEligibility(
   $input: DecideAppraisalEligibilityMutationInput!
 ) {
