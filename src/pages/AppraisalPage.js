@@ -33,26 +33,10 @@ import DocumentRejectDialog from "../components/DocumentRejectDialog";
 import ReopenDialog from "../components/ReopenDialog";
 import { ResubmitDialog, ReturnDialog } from "../components/ReturnDialogs";
 import ScoreDialog from "../components/ScoreDialog";
-import {
-  APPRAISAL_MODULE_NAME,
-  DOCUMENT_REJECTED,
-  DOCUMENT_VERIFIED,
-  RIGHT_APPRAISAL_RETURN,
-  RIGHT_APPRAISAL_REVIEW_DOCUMENTS,
-  RIGHT_APPRAISAL_SCORE,
-  RIGHT_APPRAISAL_SCREEN,
-  RIGHT_APPRAISAL_VIEW,
-} from "../constants";
+import { APPRAISAL_MODULE_NAME, DOCUMENT_REJECTED, DOCUMENT_VERIFIED, RIGHT_APPRAISAL_VIEW } from "../constants";
 import useAppraisalStyles from "../styles";
-import {
-  isReopenable,
-  isReturnable,
-  isScorable,
-  isScoringOpen,
-  isScreeningOpen,
-  openReturn,
-  refusalCode,
-} from "../util/appraisal";
+import { isAppraisalConfigured } from "../util/configuration";
+import { refusalCode } from "../util/appraisal";
 
 function AppraisalPage() {
   const classes = useAppraisalStyles();
@@ -90,18 +74,17 @@ function AppraisalPage() {
   const resubmitMutation = useGraphqlMutation(RESUBMIT_APPRAISAL_MUTATION);
   const reopenMutation = useGraphqlMutation(REOPEN_APPRAISAL_MUTATION);
 
-  if (!rights.includes(RIGHT_APPRAISAL_VIEW)) return null;
+  if (!rights.includes(RIGHT_APPRAISAL_VIEW) || !isAppraisalConfigured(modulesManager)) return null;
   const appraisal = data?.appraisal?.edges?.[0]?.node;
   const applicant = `${appraisal?.individual?.firstName ?? ""} ${appraisal?.individual?.lastName ?? ""}`.trim();
-  // A decision awaiting approval locks the checklist (backend appraisal.approvals)
-  const canScreen =
-    rights.includes(RIGHT_APPRAISAL_SCREEN) && isScreeningOpen(appraisal) && !appraisal?.pendingApproval;
-  const canScore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScoringOpen(appraisal);
-  const canRescore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScorable(appraisal);
-  const canReviewDocuments = rights.includes(RIGHT_APPRAISAL_REVIEW_DOCUMENTS) && isScreeningOpen(appraisal);
-  const canReturn = rights.includes(RIGHT_APPRAISAL_RETURN) && isReturnable(appraisal);
-  const canReopen = rights.includes(RIGHT_APPRAISAL_RETURN) && isReopenable(appraisal);
-  const canResubmit = rights.includes(RIGHT_APPRAISAL_RETURN) && !!openReturn(appraisal);
+  // What the user may do now comes from the backend, worked out by the same rules as the mutations
+  const canScreen = !!appraisal?.canScreen;
+  const canScore = !!appraisal?.canScore;
+  const canRescore = !!appraisal?.canRescore;
+  const canReviewDocuments = !!appraisal?.canReviewDocuments;
+  const canReturn = !!appraisal?.canReturn;
+  const canReopen = !!appraisal?.canReopen;
+  const canResubmit = !!appraisal?.canResubmit;
   const refusal = (err) => {
     const code = refusalCode(err);
     return code ? formatMessage(`refusal.${code}`) : String(err?.message || err);

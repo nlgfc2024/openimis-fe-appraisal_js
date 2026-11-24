@@ -9,19 +9,10 @@ import {
   DOCUMENT_FIELD_STATUS,
   DOCUMENT_REJECTED,
   DOCUMENT_VERIFIED,
-  RETURNABLE_STATUSES,
   STATUS_RETURNED,
-  STATUS_ELIGIBLE,
-  STATUS_SCORED,
-  ELIGIBILITY_CLARIFICATION,
-  ELIGIBILITY_ELIGIBLE,
-  ELIGIBILITY_INELIGIBLE,
   EMPTY_VALUE,
   HISTORY_HIDDEN_FIELDS,
   JSON_EXT_REOPENED,
-  JSON_EXT_SHORTLIST_GROUP,
-  OPEN_STATUSES,
-  REOPENABLE_STATUSES,
   RESULT_NO,
   RESULT_PENDING,
   RESULT_YES,
@@ -38,44 +29,10 @@ export function parseJson(value) {
   }
 }
 
-/** Whether a recorded eligibility decision can be reopened to correct it. */
-export function isReopenable(appraisal) {
-  return !!appraisal && REOPENABLE_STATUSES.includes(appraisal.status);
-}
-
 /** The latest reopening of the appraisal's decision ({from, by, at, reason}), or null. */
 export function lastReopening(appraisal) {
   const reopened = parseJson(appraisal?.jsonExt)[JSON_EXT_REOPENED];
   return Array.isArray(reopened) && reopened.length ? reopened[reopened.length - 1] : null;
-}
-
-/** Whether items can be answered and a decision recorded: the backend's open screening statuses. */
-export function isScreeningOpen(appraisal) {
-  return !!appraisal && OPEN_STATUSES.includes(appraisal.status);
-}
-
-/**
- * The decision the backend will record from these eligibility items (Annex 2A): any NO is INELIGIBLE, otherwise
- * any PENDING is CLARIFICATION, otherwise ELIGIBLE. `blockers` are the items to deal with first: no result yet,
- * or answers changed since the officer's answer.
- */
-export function previewDecision(items) {
-  const list = items || [];
-  const unanswered = list.filter((item) => !item.result).map((item) => item.key);
-  const changed = list.filter((item) => item.basisChanged).map((item) => item.key);
-  const byResult = (result) => list.filter((item) => item.result === result).map((item) => item.key);
-  const ineligible = byResult(RESULT_NO);
-  const pending = byResult(RESULT_PENDING);
-  let decision = ELIGIBILITY_ELIGIBLE;
-  if (ineligible.length) decision = ELIGIBILITY_INELIGIBLE;
-  else if (pending.length) decision = ELIGIBILITY_CLARIFICATION;
-  return {
-    decision: list.length ? decision : null,
-    ineligible,
-    pending,
-    blockers: { unanswered, changed },
-    canDecide: !!list.length && !unanswered.length && !changed.length,
-  };
 }
 
 /** What an answer needs (backend appraisal.review.answer_item): evidence for YES and NO, a comment for PENDING. */
@@ -137,19 +94,9 @@ export function displayValue(value) {
   return String(value);
 }
 
-/** Whether an officer can correct a value: only a scored appraisal (backend answer_score). */
-export function isScoringOpen(appraisal) {
-  return appraisal?.status === STATUS_SCORED;
-}
-
-/** Whether an appraisal can be (re)scored: eligible or scored (backend appraisal.scoring.SCORABLE). */
-export function isScorable(appraisal) {
-  return [STATUS_ELIGIBLE, STATUS_SCORED].includes(appraisal?.status);
-}
-
-/** The quota a ranked appraisal was placed in by the last shortlist (e.g. its city), or null. */
+/** The quota a ranked appraisal was placed in by the last shortlist (e.g. its city), from the backend; or null. */
 export function shortlistGroup(appraisal) {
-  return parseJson(appraisal?.jsonExt)[JSON_EXT_SHORTLIST_GROUP] ?? null;
+  return appraisal?.shortlistGroup ?? null;
 }
 
 /** A quota key for display ("blantyre" -> "Blantyre", "fast_track" -> "Fast track"); null for none. */
@@ -195,11 +142,6 @@ export function returnProblem({ reason, actionRequired }) {
   if (!(reason || "").trim()) return ANSWER_FIELD_REASON;
   if (!(actionRequired || "").trim()) return ANSWER_FIELD_ACTION;
   return null;
-}
-
-/** Whether the appraisal can be returned for action now. */
-export function isReturnable(appraisal) {
-  return RETURNABLE_STATUSES.includes(appraisal?.status);
 }
 
 /** The appraisal's open return, when it is returned. */
