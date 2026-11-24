@@ -21,10 +21,10 @@ import {
 } from "@openimis/fe-core";
 import { useIntl } from "react-intl";
 
-import { SCORE_APPRAISALS_MUTATION, SHORTLIST_MUTATION } from "../actions";
+import { CLOSE_SHORTLIST_MUTATION, SCORE_APPRAISALS_MUTATION, SHORTLIST_MUTATION } from "../actions";
 import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_SCORE, RIGHT_APPRAISAL_SHORTLIST } from "../constants";
 import useAppraisalStyles from "../styles";
-import { refusalCode, shortlistRun } from "../util/appraisal";
+import { refusalCode, shortlistClosed, shortlistRun } from "../util/appraisal";
 
 function ShortlistPanel({ programme, round, onChange, onDone }) {
   const classes = useAppraisalStyles();
@@ -34,18 +34,38 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
   const rights = useSelector((state) => state.core?.user?.i_user?.rights ?? []);
   const ranking = useSelector((state) => state.appraisal.ranking);
   const [draft, setDraft] = useState({ programme, round });
-  const [confirming, setConfirming] = useState(false);
+  const [confirming, setConfirming] = useState(null);
   const [error, setError] = useState(null);
   const scoreMutation = useGraphqlMutation(SCORE_APPRAISALS_MUTATION);
   const shortlistMutation = useGraphqlMutation(SHORTLIST_MUTATION);
+  const closeMutation = useGraphqlMutation(CLOSE_SHORTLIST_MUTATION);
   const run = shortlistRun((ranking || []).find((appraisal) => shortlistRun(appraisal)));
+  const closed = shortlistClosed(run);
   const ready = !!programme && !!round;
+  const canShortlist = rights.includes(RIGHT_APPRAISAL_SHORTLIST);
   useEffect(() => setDraft({ programme, round }), [programme, round]);
   // The round is applied when a field is left, not on every keystroke
   const apply = () => {
     if (draft.programme !== programme || draft.round !== round) onChange(draft);
   };
-  const busy = scoreMutation.isLoading || shortlistMutation.isLoading;
+  const busy = scoreMutation.isLoading || shortlistMutation.isLoading || closeMutation.isLoading;
+  const date = (value) => formatDateTimeFromISO(modulesManager, intl, value);
+  // The confirmation shown for each action: its mutation, translation keys and button label
+  const confirmations = {
+    shortlist: {
+      mutation: shortlistMutation,
+      label: "mutation.shortlist",
+      text: "shortlist.confirm",
+      action: "action.shortlist",
+    },
+    close: {
+      mutation: closeMutation,
+      label: "mutation.closeShortlist",
+      text: "shortlist.closeConfirm",
+      action: "action.closeShortlist",
+    },
+  };
+  const confirmation = confirmations[confirming];
 
   const perform = async (mutation, label) => {
     setError(null);
@@ -98,13 +118,13 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
           )}
         </Grid>
         <Grid item xs={12} sm={6} md={3} className={classes.item}>
-          {rights.includes(RIGHT_APPRAISAL_SHORTLIST) && (
+          {canShortlist && (
             <Button
               fullWidth
               color="primary"
               variant="contained"
-              disabled={!ready || busy}
-              onClick={() => setConfirming(true)}
+              disabled={!ready || busy || !!closed}
+              onClick={() => setConfirming("shortlist")}
             >
               {formatMessage("action.shortlist")}
             </Button>
@@ -122,10 +142,7 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
       {run ? (
         <>
           <Typography variant="body2" className={`${classes.section} ${classes.muted}`}>
-            {formatMessageWithValues("shortlist.lastRun", {
-              user: run.by,
-              date: formatDateTimeFromISO(modulesManager, intl, run.at),
-            })}
+            {formatMessageWithValues("shortlist.lastRun", { user: run.by, date: date(run.at) })}
           </Typography>
           <Table
             module={APPRAISAL_MODULE_NAME}
@@ -138,29 +155,58 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
               (group) => group.shortlisted,
             ]}
           />
+          <Divider />
+          {closed ? (
+            <Typography variant="body2" className={classes.section}>
+              {formatMessageWithValues("shortlist.closed", { user: closed.by, date: date(closed.at) })}
+            </Typography>
+          ) : (
+            canShortlist && (
+              <Grid container alignItems="center" className={classes.item}>
+                <Grid item xs={12} md={9} className={classes.item}>
+                  <Typography variant="body2" className={classes.muted}>
+                    {formatMessage("shortlist.closeHelp")}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={3} className={classes.item}>
+                  <Button
+                    fullWidth
+                    color="primary"
+                    variant="outlined"
+                    disabled={!ready || busy}
+                    onClick={() => setConfirming("close")}
+                  >
+                    {formatMessage("action.closeShortlist")}
+                  </Button>
+                </Grid>
+              </Grid>
+            )
+          )}
         </>
       ) : (
         <Typography variant="body2" className={`${classes.section} ${classes.muted}`}>
           {formatMessage("shortlist.notRun")}
         </Typography>
       )}
-      <Dialog open={confirming} onClose={() => setConfirming(false)}>
-        <DialogTitle>{formatMessageWithValues("shortlist.confirmTitle", { programme, round })}</DialogTitle>
+      <Dialog open={!!confirmation} onClose={() => setConfirming(null)}>
+        <DialogTitle>
+          {confirmation && formatMessageWithValues(`${confirmation.text}Title`, { programme, round })}
+        </DialogTitle>
         <DialogContent>
-          <Typography variant="body2">{formatMessage("shortlist.confirmMessage")}</Typography>
+          <Typography variant="body2">{confirmation && formatMessage(`${confirmation.text}Message`)}</Typography>
         </DialogContent>
         <DialogActions>
           <Button
             className={classes.primaryButton}
             autoFocus
             onClick={() => {
-              setConfirming(false);
-              perform(shortlistMutation, "mutation.shortlist");
+              setConfirming(null);
+              perform(confirmation.mutation, confirmation.label);
             }}
           >
-            {formatMessage("action.shortlist")}
+            {confirmation && formatMessage(confirmation.action)}
           </Button>
-          <Button className={classes.secondaryButton} onClick={() => setConfirming(false)}>
+          <Button className={classes.secondaryButton} onClick={() => setConfirming(null)}>
             {formatMessage("action.cancel")}
           </Button>
         </DialogActions>

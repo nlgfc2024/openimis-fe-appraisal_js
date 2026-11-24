@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, Divider, Grid, Typography } from "@material-ui/core";
-import { Table, formatDateTimeFromISO, useModulesManager, useTranslations } from "@openimis/fe-core";
+import { Table, WarningBox, formatDateTimeFromISO, useModulesManager, useTranslations } from "@openimis/fe-core";
 import { useIntl } from "react-intl";
 
 import { APPRAISAL_MODULE_NAME, EMPTY_VALUE } from "../constants";
 import useAppraisalStyles from "../styles";
-import { formatPoints, parseJson } from "../util/appraisal";
+import { awaitingPoints, formatPoints, parseJson } from "../util/appraisal";
 import StatCard from "./StatCard";
 
 function shownValue(value, formatMessage) {
@@ -63,7 +63,14 @@ function ScoreTable({ appraisal, items, canScore, canRescore, onScore, onRescore
       );
     },
     (item) => points(item.systemPoints, item.maxPoints),
-    (item) => points(item.officerPoints, item.maxPoints),
+    (item) =>
+      item.points === null || item.points === undefined ? (
+        <Typography variant="caption" className={classes.warning}>
+          {formatMessage("score.awaitingOfficer")}
+        </Typography>
+      ) : (
+        points(item.officerPoints, item.maxPoints)
+      ),
     (item) => (
       <>
         {item.evidence && <Typography variant="body2">{item.evidence}</Typography>}
@@ -97,14 +104,27 @@ function ScoreTable({ appraisal, items, canScore, canRescore, onScore, onRescore
   }
 
   const changed = items.filter((item) => item.basisChanged).length;
+  const awaiting = awaitingPoints(items);
+  const total = formatPoints(appraisal.score) ?? (awaiting.length ? formatMessage("score.awaiting") : null);
   return (
     <>
       <Grid container className={classes.item}>
-        <StatCard md={3} label={formatMessage("score.total")} value={formatPoints(appraisal.score)} text />
+        <StatCard md={3} label={formatMessage("score.total")} value={total} text />
         <StatCard md={3} label={formatMessage("score.rank")} value={appraisal.rank} text />
         <StatCard md={3} label={formatMessage("score.overridden")} value={items.filter((i) => i.isOverridden).length} />
         <StatCard md={3} label={formatMessage("score.changed")} value={changed} />
       </Grid>
+      {!!awaiting.length && (
+        <Grid container className={classes.item}>
+          <WarningBox
+            xs={12}
+            title={formatMessage("score.awaitingTitle")}
+            description={formatMessageWithValues("score.awaitingItems", {
+              items: awaiting.map((item) => item.label).join(", "),
+            })}
+          />
+        </Grid>
+      )}
       <Divider />
       {items.length ? (
         <Table

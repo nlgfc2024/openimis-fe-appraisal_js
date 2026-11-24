@@ -112,7 +112,8 @@
     "scoreNow": "Score now",
     "scoreRound": "Score the round",
     "shortlist": "Run shortlist",
-    "ranking": "Ranking and shortlist"
+    "ranking": "Ranking and shortlist",
+    "closeShortlist": "Close the round"
   },
   "mutation": {
     "answer": "Answer \"{item}\" for {applicant}",
@@ -120,7 +121,8 @@
     "score": "Score \"{item}\" for {applicant}",
     "rescore": "Rescore {applicant}",
     "scoreRound": "Score {programme} {round}",
-    "shortlist": "Shortlist {programme} {round}"
+    "shortlist": "Shortlist {programme} {round}",
+    "closeShortlist": "Close the {programme} {round} shortlist"
   },
   "refusal": {
     "not_found": "This appraisal is not available to you.",
@@ -137,7 +139,12 @@
     "nothing_to_shortlist": "There are no scored applicants in this round.",
     "scores_changed": "Some applications changed since an officer set points: review them first.",
     "scores_missing": "Some applicants have no score yet.",
-    "no_shortlist_rule": "The programme has no shortlist places configured."
+    "no_shortlist_rule": "The programme has no shortlist places configured.",
+    "shortlist_closed": "This round's shortlist is closed.",
+    "shortlist_outdated": "Some scored applicants aren't ranked yet: run the shortlist before closing the round.",
+    "city_without_places": "Some applicants are in a city with no shortlist places configured.",
+    "shortlist_rules_differ": "This round's appraisals were created under different shortlist rules; ask an administrator to settle them.",
+    "individual_not_updated": "The shortlist outcome couldn't be saved on an applicant's record."
   },
   "emptyLabel": " ",
   "summary": {
@@ -179,7 +186,11 @@
     "overridden": "Set by an officer",
     "changed": "Application changed",
     "none": "Not scored yet.",
-    "rescoreHelp": "Scoring reads the application's answers again; points set by an officer are kept."
+    "rescoreHelp": "Scoring reads the application's answers again; points set by an officer are kept.",
+    "awaiting": "Awaiting points",
+    "awaitingOfficer": "Needs an officer's points",
+    "awaitingTitle": "Points needed from an officer",
+    "awaitingItems": "No points yet for: {items}. The answer is missing or can't be scored, so an officer sets the points with the evidence before the shortlist can run."
   },
   "scoreDialog": {
     "system": "From the application: {points} of {max} points. {note}",
@@ -206,6 +217,10 @@
     "ranked": "Ranked",
     "shortlisted": "Shortlisted",
     "confirmTitle": "Shortlist {programme} {round}?",
-    "confirmMessage": "Scored applicants are ranked by score, then submission time, and the top places of each city are shortlisted for physical due diligence. Running it again replaces the previous shortlist."
+    "confirmMessage": "Scored applicants are ranked by score, then submission time, and the top places of each city are shortlisted for physical due diligence. Running it again replaces the previous shortlist.",
+    "closeHelp": "Close the round once the shortlist is final: it can't be run again for this round, and later applications are scored but not ranked.",
+    "closed": "Closed by {user}, {date}: this round's shortlist is final.",
+    "closeConfirmTitle": "Close the {programme} {round} shortlist?",
+    "closeConfirmMessage": "The shortlisted and not shortlisted applicants keep their outcome and the shortlist can't be run again for this round. This can't be undone here."
   }
 }

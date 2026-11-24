@@ -96,6 +96,10 @@ export const ANSWER_SCORE_MUTATION = `mutation AnswerAppraisalScore($input: Answ
   answerAppraisalScore(input: $input) { internalId clientMutationId }
 }`;
 
+export const CLOSE_SHORTLIST_MUTATION = `mutation CloseShortlist($input: CloseShortlistMutationInput!) {
+  closeShortlist(input: $input) { internalId clientMutationId }
+}`;
+
 export const SHORTLIST_MUTATION = `mutation ShortlistAppraisals($input: ShortlistAppraisalsMutationInput!) {
   shortlistAppraisals(input: $input) { internalId clientMutationId }
 }`;

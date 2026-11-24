@@ -15,6 +15,8 @@ const {
   previewDecision,
   proposal,
   refusalCode,
+  awaitingPoints,
+  shortlistClosed,
 } = require("../src/util/appraisal");
 
 const item = (key, result, extra = {}) => ({ key, result, basisChanged: false, ...extra });
@@ -120,4 +122,24 @@ test("shortlistRun and formatPoints", () => {
   assert.strictEqual(formatPoints("31.00"), "31");
   assert.strictEqual(formatPoints("12.50"), "12.5");
   assert.strictEqual(formatPoints(null), null);
+});
+
+test("awaitingPoints lists the score items without points that count", () => {
+  const items = [
+    { key: "a", points: "15.00" },
+    { key: "b", points: null },
+    { key: "c" },
+    { key: "d", points: "0.00" },
+  ];
+  assert.deepStrictEqual(awaitingPoints(items).map((item) => item.key), ["b", "c"]);
+  assert.deepStrictEqual(awaitingPoints(undefined), []);
+});
+
+test("shortlistClosed reads who closed the round", () => {
+  assert.deepStrictEqual(shortlistClosed({ groups: [], closed: { by: "a", at: "2026-11-24T12:00:00" } }), {
+    by: "a",
+    at: "2026-11-24T12:00:00",
+  });
+  assert.strictEqual(shortlistClosed({ groups: [] }), null);
+  assert.strictEqual(shortlistClosed(null), null);
 });

@@ -137,6 +137,16 @@ export function shortlistRun(appraisal) {
   return run && Array.isArray(run.groups) ? run : null;
 }
 
+/** Who closed the round's shortlist and when ({by, at}), or null while it can still be run. */
+export function shortlistClosed(run) {
+  return run?.closed || null;
+}
+
+/** Score items without points that count: the answer is missing or unreadable, so an officer sets them. */
+export function awaitingPoints(items) {
+  return (items || []).filter((item) => item.points === null || item.points === undefined);
+}
+
 /** A number for display with at most two decimals (points come as decimal text). */
 export function formatPoints(value) {
   if (value === null || value === undefined || value === "") return null;
