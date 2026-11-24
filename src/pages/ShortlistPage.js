@@ -7,6 +7,7 @@ import RankingSearcher from "../components/RankingSearcher";
 import ShortlistPanel from "../components/ShortlistPanel";
 import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_VIEW } from "../constants";
 import useAppraisalStyles from "../styles";
+import { isAppraisalConfigured } from "../util/configuration";
 
 /** Ranking and shortlist of one programme round, opened on the latest round. */
 function ShortlistPage() {
@@ -14,7 +15,7 @@ function ShortlistPage() {
   const modulesManager = useModulesManager();
   const { formatMessage } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
   const rights = useSelector((state) => state.core?.user?.i_user?.rights ?? []);
-  const allowed = rights.includes(RIGHT_APPRAISAL_VIEW);
+  const allowed = rights.includes(RIGHT_APPRAISAL_VIEW) && isAppraisalConfigured(modulesManager);
   const { data } = useGraphqlQuery(LATEST_ROUND_QUERY, {}, { skip: !allowed });
   const rounds = useGraphqlQuery(APPRAISAL_ROUNDS_QUERY, {}, { skip: !allowed }).data?.appraisalRounds || [];
   const [selection, setSelection] = useState({ programme: "", round: "" });
