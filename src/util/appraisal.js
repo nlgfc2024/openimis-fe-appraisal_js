@@ -1,9 +1,8 @@
 import {
   ANSWER_FIELD_COMMENT,
   ANSWER_FIELD_EVIDENCE,
-  ANSWER_FIELD_POINTS,
+  ANSWER_FIELD_VALUE,
   ANSWER_FIELD_RESULT,
-  CITY_LOCATION_TYPE,
   STATUS_ELIGIBLE,
   STATUS_SCORED,
   ELIGIBILITY_CLARIFICATION,
@@ -11,6 +10,7 @@ import {
   ELIGIBILITY_INELIGIBLE,
   EMPTY_VALUE,
   JSON_EXT_REOPENED,
+  JSON_EXT_SHORTLIST_GROUP,
   OPEN_STATUSES,
   REOPENABLE_STATUSES,
   RESULT_NO,
@@ -110,20 +110,21 @@ function show(value) {
   return typeof value === "object" ? JSON.stringify(value) : String(value);
 }
 
-/** What an officer's points need (backend appraisal.scoring.answer_score): a number from 0 to the maximum, and the
- * evidence checked. */
-export function scoreProblem({ points, evidence }, maxPoints) {
-  const value = Number(points);
-  const highest = Number(maxPoints);
-  if (points === null || points === undefined || String(points).trim() === "" || Number.isNaN(value)) {
-    return ANSWER_FIELD_POINTS;
-  }
-  if (value < 0 || (!Number.isNaN(highest) && value > highest)) return ANSWER_FIELD_POINTS;
+/** What an officer's corrected value needs (backend appraisal.scoring.answer_score): a value, and the evidence
+ * checked. Whether it can be scored is the backend's call, from the component's rules. */
+export function scoreProblem({ value, evidence }) {
+  if (value === null || value === undefined || String(value).trim() === "") return ANSWER_FIELD_VALUE;
   if (!(evidence || "").trim()) return ANSWER_FIELD_EVIDENCE;
   return null;
 }
 
-/** Whether an officer can change points: only a scored appraisal (backend answer_score). */
+/** A score input as an officer would type it (true/false for yes/no answers), "" for none. */
+export function displayValue(value) {
+  if (value === null || value === undefined) return "";
+  return String(value);
+}
+
+/** Whether an officer can correct a value: only a scored appraisal (backend answer_score). */
 export function isScoringOpen(appraisal) {
   return appraisal?.status === STATUS_SCORED;
 }
@@ -133,14 +134,16 @@ export function isScorable(appraisal) {
   return [STATUS_ELIGIBLE, STATUS_SCORED].includes(appraisal?.status);
 }
 
-/** The name of the location's ancestor (or itself) of the city type; null outside one. */
-export function cityOf(location, type = CITY_LOCATION_TYPE) {
-  let place = location;
-  while (place) {
-    if (place.type === type) return place.name;
-    place = place.parent;
-  }
-  return null;
+/** The quota a ranked appraisal was placed in by the last shortlist (e.g. its city), or null. */
+export function shortlistGroup(appraisal) {
+  return parseJson(appraisal?.jsonExt)[JSON_EXT_SHORTLIST_GROUP] ?? null;
+}
+
+/** A quota key for display ("blantyre" -> "Blantyre", "fast_track" -> "Fast track"); null for none. */
+export function groupLabel(key) {
+  if (key === null || key === undefined || key === "") return null;
+  const text = String(key).replace(/_/g, " ");
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /** The last shortlist run kept on a ranked appraisal (json_ext.shortlist): {by, at, groups: [{group, places,

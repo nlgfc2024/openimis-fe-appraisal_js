@@ -68,6 +68,11 @@ function ScoreTable({ appraisal, items, canScore, canRescore, onScore, onRescore
         <Typography variant="caption" className={classes.warning}>
           {formatMessage("score.awaitingOfficer")}
         </Typography>
+      ) : item.officerValue !== null && item.officerValue !== undefined ? (
+        <>
+          <Typography variant="body2">{shownValue(item.officerValue, formatMessage)}</Typography>
+          {points(item.officerPoints, item.maxPoints)}
+        </>
       ) : (
         points(item.officerPoints, item.maxPoints)
       ),

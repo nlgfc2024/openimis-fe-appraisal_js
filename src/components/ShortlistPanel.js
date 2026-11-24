@@ -24,7 +24,7 @@ import { useIntl } from "react-intl";
 import { CLOSE_SHORTLIST_MUTATION, SCORE_APPRAISALS_MUTATION, SHORTLIST_MUTATION } from "../actions";
 import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_SCORE, RIGHT_APPRAISAL_SHORTLIST } from "../constants";
 import useAppraisalStyles from "../styles";
-import { refusalCode, shortlistClosed, shortlistRun } from "../util/appraisal";
+import { groupLabel, refusalCode, shortlistClosed, shortlistRun } from "../util/appraisal";
 
 function ShortlistPanel({ programme, round, onChange, onDone }) {
   const classes = useAppraisalStyles();
@@ -149,7 +149,7 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
             headers={["shortlist.group", "shortlist.places", "shortlist.ranked", "shortlist.shortlisted"]}
             items={run.groups}
             itemFormatters={[
-              (group) => group.group ?? formatMessage("shortlist.overall"),
+              (group) => groupLabel(group.group) ?? formatMessage("shortlist.overall"),
               (group) => group.places,
               (group) => group.ranked,
               (group) => group.shortlisted,

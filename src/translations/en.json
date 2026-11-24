@@ -138,18 +138,18 @@
     "checklist_incomplete": "Every requirement needs an answer first.",
     "answers_changed": "Answer again the items whose application changed.",
     "not_scorable": "This appraisal can't be scored in its current status.",
-    "invalid_points": "Enter points from 0 to the indicator's maximum.",
     "nothing_to_shortlist": "There are no scored applicants in this round.",
     "scores_changed": "Some applications changed since an officer set points: review them first.",
     "scores_missing": "Some applicants have no score yet.",
     "no_shortlist_rule": "The programme has no shortlist places configured.",
     "shortlist_closed": "This round's shortlist is closed.",
     "shortlist_outdated": "Some scored applicants aren't ranked yet: run the shortlist before closing the round.",
-    "city_without_places": "Some applicants are in a city with no shortlist places configured.",
-    "shortlist_rules_differ": "This round's appraisals were created under different shortlist rules; ask an administrator to settle them.",
     "individual_not_updated": "The shortlist outcome couldn't be saved on an applicant's record.",
     "not_reopenable": "Only an eligible or ineligible decision can be reopened, not one already scored or shortlisted.",
-    "reason_required": "Say why the decision is being corrected."
+    "reason_required": "Say why the decision is being corrected.",
+    "invalid_value": "This value can't be scored for this indicator.",
+    "round_not_configured": "The programme is no longer configured for this round.",
+    "not_configured": "The desk appraisal configuration is invalid; ask an administrator to fix it."
   },
   "emptyLabel": " ",
   "summary": {
@@ -180,7 +180,7 @@
     "indicator": "Indicator",
     "value": "From the application",
     "system": "Points",
-    "officer": "Officer points",
+    "officer": "Officer value",
     "evidence": "Evidence / comment",
     "decided": "Scored by",
     "basisChanged": "Application changed since scored",
@@ -193,19 +193,22 @@
     "none": "Not scored yet.",
     "rescoreHelp": "Scoring reads the application's answers again; points set by an officer are kept.",
     "awaiting": "Awaiting points",
-    "awaitingOfficer": "Needs an officer's points",
-    "awaitingTitle": "Points needed from an officer",
-    "awaitingItems": "No points yet for: {items}. The answer is missing or can't be scored, so an officer sets the points with the evidence before the shortlist can run."
+    "awaitingOfficer": "Needs an officer's value",
+    "awaitingTitle": "Values needed from an officer",
+    "awaitingItems": "No points yet for: {items}. The answer is missing or can't be scored, so an officer enters the value the evidence shows before the shortlist can run."
   },
   "scoreDialog": {
-    "system": "From the application: {points} of {max} points. {note}",
-    "basisChanged": "The application changed since these points were set.",
-    "points": "Points (0 to {max})",
+    "system": "From the application: {value}, {points} of {max} points. {note}",
+    "basisChanged": "The application changed since this value was corrected.",
     "evidenceHelp": "Required: the evidence or source checked",
     "required": {
-      "points": "Enter points from 0 to {max}.",
+      "value": "Enter the value the evidence shows.",
       "evidence": "Record the evidence or source checked."
-    }
+    },
+    "value": "Value",
+    "valueHelp": "As the evidence shows it, e.g. 30 (months) or stable; the points follow from the scoring rules.",
+    "noValue": "no answer",
+    "noPoints": "no"
   },
   "ranking": {
     "rank": "Rank",
@@ -216,8 +219,8 @@
     "title": "Ranking and shortlist",
     "lastRun": "Last shortlist by {user}, {date}",
     "notRun": "No shortlist has been run for this round yet.",
-    "group": "City",
-    "overall": "All applicants",
+    "group": "City / quota",
+    "overall": "Other places",
     "places": "Places",
     "ranked": "Ranked",
     "shortlisted": "Shortlisted",
