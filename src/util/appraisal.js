@@ -1,7 +1,11 @@
 import {
   ANSWER_FIELD_COMMENT,
   ANSWER_FIELD_EVIDENCE,
+  ANSWER_FIELD_POINTS,
   ANSWER_FIELD_RESULT,
+  CITY_LOCATION_TYPE,
+  STATUS_ELIGIBLE,
+  STATUS_SCORED,
   ELIGIBILITY_CLARIFICATION,
   ELIGIBILITY_ELIGIBLE,
   ELIGIBILITY_INELIGIBLE,
@@ -91,4 +95,51 @@ function parseJsonList(value) {
 function show(value) {
   if (value === null || value === undefined || value === "") return EMPTY_VALUE;
   return typeof value === "object" ? JSON.stringify(value) : String(value);
+}
+
+/** What an officer's points need (backend appraisal.scoring.answer_score): a number from 0 to the maximum, and the
+ * evidence checked. */
+export function scoreProblem({ points, evidence }, maxPoints) {
+  const value = Number(points);
+  const highest = Number(maxPoints);
+  if (points === null || points === undefined || String(points).trim() === "" || Number.isNaN(value)) {
+    return ANSWER_FIELD_POINTS;
+  }
+  if (value < 0 || (!Number.isNaN(highest) && value > highest)) return ANSWER_FIELD_POINTS;
+  if (!(evidence || "").trim()) return ANSWER_FIELD_EVIDENCE;
+  return null;
+}
+
+/** Whether an officer can change points: only a scored appraisal (backend answer_score). */
+export function isScoringOpen(appraisal) {
+  return appraisal?.status === STATUS_SCORED;
+}
+
+/** Whether an appraisal can be (re)scored: eligible or scored (backend appraisal.scoring.SCORABLE). */
+export function isScorable(appraisal) {
+  return [STATUS_ELIGIBLE, STATUS_SCORED].includes(appraisal?.status);
+}
+
+/** The name of the location's ancestor (or itself) of the city type; null outside one. */
+export function cityOf(location, type = CITY_LOCATION_TYPE) {
+  let place = location;
+  while (place) {
+    if (place.type === type) return place.name;
+    place = place.parent;
+  }
+  return null;
+}
+
+/** The last shortlist run kept on a ranked appraisal (json_ext.shortlist): {by, at, groups: [{group, places,
+ * ranked, shortlisted}]}, or null. */
+export function shortlistRun(appraisal) {
+  const run = parseJson(appraisal?.jsonExt).shortlist;
+  return run && Array.isArray(run.groups) ? run : null;
+}
+
+/** A number for display with at most two decimals (points come as decimal text). */
+export function formatPoints(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isNaN(number) ? String(value) : String(Math.round(number * 100) / 100);
 }

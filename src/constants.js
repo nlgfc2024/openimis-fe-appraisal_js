@@ -3,12 +3,15 @@ export const APPRAISAL_MODULE_NAME = "appraisal";
 // Backend rights (appraisal module, 220000 block)
 export const RIGHT_APPRAISAL_VIEW = 220001;
 export const RIGHT_APPRAISAL_SCREEN = 220002;
+export const RIGHT_APPRAISAL_SCORE = 220003;
+export const RIGHT_APPRAISAL_SHORTLIST = 220004;
 
 // The backend GraphQL connection of appraisals
 export const GQL_APPRAISAL_QUERY = "appraisal";
 
 export const ROUTE_APPRAISALS = "appraisals";
 export const ROUTE_APPRAISAL = "appraisals/appraisal";
+export const ROUTE_SHORTLIST = "appraisals/shortlist";
 
 // Values of the backend appraisal models (Appraisal, AppraisalItem)
 export const RESULT_YES = "YES";
@@ -44,6 +47,8 @@ export const STATUSES = [
   STATUS_NOT_SHORTLISTED,
   STATUS_RETURNED,
 ];
+// Statuses that are ranked for the shortlist (backend appraisal.scoring.RANKED)
+export const RANKED_STATUSES = [STATUS_SCORED, STATUS_SHORTLISTED, STATUS_NOT_SHORTLISTED];
 // Statuses in which items can be answered and a decision recorded (backend appraisal.review.OPEN_STATUSES)
 export const OPEN_STATUSES = [STATUS_RECEIVED, STATUS_DOCUMENT_CHECK, STATUS_DESK_SCREENING];
 
@@ -54,13 +59,15 @@ export const HISTORY_SUBJECT_APPRAISAL = "appraisal";
 export const ANSWER_FIELD_RESULT = "result";
 export const ANSWER_FIELD_EVIDENCE = "evidence";
 export const ANSWER_FIELD_COMMENT = "comment";
+export const ANSWER_FIELD_POINTS = "points";
 
 // Tabs of the appraisal page and the list's summary cards (also their translation keys)
 export const TAB_CHECKLIST = "checklist";
 export const TAB_APPLICATION = "application";
 export const TAB_DOCUMENTS = "documents";
+export const TAB_SCORE = "score";
 export const TAB_HISTORY = "history";
-export const APPRAISAL_TABS = [TAB_CHECKLIST, TAB_APPLICATION, TAB_DOCUMENTS, TAB_HISTORY];
+export const APPRAISAL_TABS = [TAB_CHECKLIST, TAB_SCORE, TAB_APPLICATION, TAB_DOCUMENTS, TAB_HISTORY];
 export const SUMMARY_CARDS = ["total", "screening", "eligible", "clarification", "ineligible", "review"];
 
 // msr_etl components shown on the appraisal page
@@ -68,6 +75,11 @@ export const REF_KOBO_APPLICATIONS = "msrEtl.KoboApplications";
 export const REF_APPLICANT_DOCUMENTS = "msrEtl.ApplicantDocuments";
 
 export const EMPTY_VALUE = "\u2014";
+
+// The location type of a city, which the shortlist splits places by (backend shortlist.location_type default)
+export const CITY_LOCATION_TYPE = "R";
+// Ranked appraisals shown per page on the shortlist screen
+export const RANKING_PAGE_SIZE = 50;
 
 export const DEFAULT_PAGE_SIZE = 10;
 export const ROWS_PER_PAGE_OPTIONS = [10, 20, 50, 100];

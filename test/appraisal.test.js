@@ -3,6 +3,12 @@ const assert = require("node:assert/strict");
 
 const {
   answerProblem,
+  cityOf,
+  formatPoints,
+  isScorable,
+  isScoringOpen,
+  scoreProblem,
+  shortlistRun,
   describeChanges,
   isScreeningOpen,
   parseJson,
@@ -80,4 +86,38 @@ test("parseJson and describeChanges", () => {
     { field: "basis", old: { a: 1 }, new: { a: 2 } },
   ]);
   assert.deepStrictEqual(describeChanges(changes), ["officer_result: — → YES", 'basis: {"a":1} → {"a":2}']);
+});
+
+test("scoreProblem mirrors the backend rules", () => {
+  assert.strictEqual(scoreProblem({ points: "", evidence: "x" }, "25"), "points");
+  assert.strictEqual(scoreProblem({ points: "abc", evidence: "x" }, "25"), "points");
+  assert.strictEqual(scoreProblem({ points: "26", evidence: "x" }, "25"), "points");
+  assert.strictEqual(scoreProblem({ points: "-1", evidence: "x" }, "25"), "points");
+  assert.strictEqual(scoreProblem({ points: "12", evidence: " " }, "25"), "evidence");
+  assert.strictEqual(scoreProblem({ points: "0", evidence: "Site visit" }, "25"), null);
+  assert.strictEqual(scoreProblem({ points: "25", evidence: "Site visit" }, "25"), null);
+});
+
+test("scoring states", () => {
+  assert.strictEqual(isScoringOpen({ status: "SCORED" }), true);
+  assert.strictEqual(isScoringOpen({ status: "SHORTLISTED" }), false);
+  assert.strictEqual(isScorable({ status: "ELIGIBLE" }), true);
+  assert.strictEqual(isScorable({ status: "DESK_SCREENING" }), false);
+});
+
+test("cityOf walks up to the city", () => {
+  const village = { name: "Che-Jine", type: "V", parent: { name: "Makata", type: "W", parent: {
+    name: "Blantyre Malabada", type: "D", parent: { name: "Blantyre", type: "R" } } } };
+  assert.strictEqual(cityOf(village), "Blantyre");
+  assert.strictEqual(cityOf({ name: "Ward", type: "W" }), null);
+  assert.strictEqual(cityOf(null), null);
+});
+
+test("shortlistRun and formatPoints", () => {
+  const run = { by: "Admin", at: "2026-11-24T10:00:00", groups: [{ group: "Zomba", places: 104 }] };
+  assert.deepStrictEqual(shortlistRun({ jsonExt: JSON.stringify({ shortlist: run }) }), run);
+  assert.strictEqual(shortlistRun({ jsonExt: "{}" }), null);
+  assert.strictEqual(formatPoints("31.00"), "31");
+  assert.strictEqual(formatPoints("12.50"), "12.5");
+  assert.strictEqual(formatPoints(null), null);
 });
