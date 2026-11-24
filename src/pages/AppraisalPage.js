@@ -79,7 +79,9 @@ function AppraisalPage() {
   if (!rights.includes(RIGHT_APPRAISAL_VIEW)) return null;
   const appraisal = data?.appraisal?.edges?.[0]?.node;
   const applicant = `${appraisal?.individual?.firstName ?? ""} ${appraisal?.individual?.lastName ?? ""}`.trim();
-  const canScreen = rights.includes(RIGHT_APPRAISAL_SCREEN) && isScreeningOpen(appraisal);
+  // A decision awaiting approval locks the checklist (backend appraisal.approvals)
+  const canScreen =
+    rights.includes(RIGHT_APPRAISAL_SCREEN) && isScreeningOpen(appraisal) && !appraisal?.pendingApproval;
   const canScore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScoringOpen(appraisal);
   const canRescore = rights.includes(RIGHT_APPRAISAL_SCORE) && isScorable(appraisal);
   const canReviewDocuments = rights.includes(RIGHT_APPRAISAL_REVIEW_DOCUMENTS) && isScreeningOpen(appraisal);

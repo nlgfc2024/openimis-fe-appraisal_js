@@ -14,10 +14,12 @@ import {
   TAB_SCORE,
 } from "../constants";
 import useAppraisalStyles from "../styles";
+import { parseJson } from "../util/appraisal";
 import AppraisalHistory from "./AppraisalHistory";
 import DecisionPanel from "./DecisionPanel";
 import DocumentCheck from "./DocumentCheck";
 import EligibilityChecklist from "./EligibilityChecklist";
+import ApprovalStatus from "./ApprovalStatus";
 import { ReturnedBanner, ReturnsTable } from "./ReturnsPanel";
 import ScoreTable from "./ScoreTable";
 
@@ -43,15 +45,28 @@ function AppraisalTabPanel({
 }) {
   const classes = useAppraisalStyles();
   const modulesManager = useModulesManager();
-  const { formatMessage } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
+  const { formatMessage, formatMessageWithValues } = useTranslations(APPRAISAL_MODULE_NAME, modulesManager);
   const [tab, setTab] = useState(TAB_CHECKLIST);
   if (!appraisal) return null;
+  const decisionAwaiting = (approval) => {
+    const summary = parseJson(approval.summary);
+    return formatMessageWithValues(summary.comment ? "approval.decisionWithComment" : "approval.decision", {
+      decision: formatMessage(`eligibility.${summary.decision}`),
+      comment: summary.comment,
+    });
+  };
   const items = appraisal.items || [];
   const individualId = appraisal.individual?.uuid;
 
   return (
     <Paper className={classes.paper}>
       <ReturnedBanner appraisal={appraisal} canResubmit={canResubmit} onResubmit={onResubmit} />
+      {appraisal.pendingApproval && (
+        <ApprovalStatus
+          approval={appraisal.pendingApproval}
+          description={decisionAwaiting(appraisal.pendingApproval)}
+        />
+      )}
       <Grid container className={`${classes.tableTitle} ${classes.tabs}`}>
         <Tabs value={tab} onChange={(e, value) => setTab(value)} TabIndicatorProps={{ style: { display: "none" } }}>
           {APPRAISAL_TABS.map((value) => (

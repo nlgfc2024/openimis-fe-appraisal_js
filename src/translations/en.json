@@ -47,7 +47,11 @@
     "SCORED": "Scored",
     "SHORTLISTED": "Shortlisted",
     "NOT_SHORTLISTED": "Not shortlisted",
-    "RETURNED": "Returned for action"
+    "RETURNED": "Returned for action",
+    "PENDING": "Awaiting approval",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "FAILED": "Not applied"
   },
   "eligibility": {
     "null": "Any decision",
@@ -101,7 +105,8 @@
     "appraisal": "Appraisal",
     "created": "Created",
     "none": "No changes yet.",
-    "return": "Return for action"
+    "return": "Return for action",
+    "approval": "Approval"
   },
   "action": {
     "answer": "Answer",
@@ -120,7 +125,9 @@
     "return": "Return for action",
     "resubmit": "Resubmit",
     "verify": "Verify",
-    "reject": "Reject"
+    "reject": "Reject",
+    "openTask": "Open the task",
+    "reports": "Reports"
   },
   "mutation": {
     "answer": "Answer \"{item}\" for {applicant}",
@@ -155,7 +162,11 @@
     "invalid_document_status": "Choose Verified or Rejected.",
     "not_returnable": "This appraisal can't be returned in its current status.",
     "return_details_required": "Give the reason and the action required.",
-    "not_returned": "This appraisal is not returned for action."
+    "not_returned": "This appraisal is not returned for action.",
+    "approval_pending": "This is already awaiting a supervisor's approval.",
+    "approval_not_started": "The approval task could not be created.",
+    "shortlist_changed": "Scores or applicants changed since the shortlist was asked for; run it again.",
+    "approver_not_allowed": "The approver lacks the right to approve appraisals."
   },
   "emptyLabel": " ",
   "summary": {
@@ -225,7 +236,9 @@
     "ranked": "Ranked",
     "shortlisted": "Shortlisted",
     "confirmTitle": "Shortlist {programme} {round}?",
-    "confirmMessage": "Scored applicants are ranked by score, then submission time, and the top places of each city are shortlisted for physical due diligence. Running it again replaces the previous shortlist."
+    "confirmMessage": "Scored applicants are ranked by score, then submission time, and the top places of each city are shortlisted for physical due diligence. Running it again replaces the previous shortlist.",
+    "proposed": "{shortlisted} of {ranked} applicants shortlisted: {groups}",
+    "lastRunApproved": "Last shortlist by {user}, {date}, approved by {approver}"
   },
   "documents": {
     "reviewed": "Reviewed by",
@@ -278,5 +291,64 @@
     "reason": "Reason",
     "help": "What is wrong with the document; the applicant is told when the appraisal is returned for action.",
     "required": "Say why the document is rejected."
+  },
+  "approvalKind": {
+    "SHORTLIST": "Shortlist",
+    "ELIGIBILITY": "Eligibility decision"
+  },
+  "approval": {
+    "pending": "Awaiting a supervisor's approval, asked by {user}, {date}",
+    "pendingHelp": "Nothing changes until it is approved in Tasks.",
+    "APPROVED": "Approved by {user}, {date}.",
+    "REJECTED": "Rejected by {user}, {date}; nothing changed.",
+    "FAILED": "Approved by {user}, {date}, but not applied: {outcome}",
+    "decision": "Proposed decision: {decision}. The checklist is locked until it is approved or rejected.",
+    "decisionWithComment": "Proposed decision: {decision} ({comment}). The checklist is locked until it is approved or rejected."
+  },
+  "task": {
+    "title": "Desk appraisal approval",
+    "change": "Change",
+    "details": "Details",
+    "requestedBy": "Asked by",
+    "decision": "{applicant} {nationalId}: {decision}",
+    "decisionWithComment": "{applicant} {nationalId}: {decision} ({comment})"
+  },
+  "report": {
+    "title": "Desk appraisal report",
+    "none": "No appraisals for {programme} {round}.",
+    "applications": "Applications",
+    "eligible": "Eligible",
+    "shortlisted": "Shortlisted",
+    "awaitingTotal": "Awaiting action",
+    "byCity": "By city",
+    "city": "City",
+    "places": "Places",
+    "total": "Applications",
+    "ineligible": "Ineligible",
+    "clarification": "Clarification",
+    "scored": "Scored",
+    "outsideCities": "Outside the cities",
+    "byStatus": "By status",
+    "awaiting": "Awaiting action",
+    "documents": "Document check (in screening)",
+    "by": "By {label}",
+    "count": "Count",
+    "notGiven": "Not given",
+    "awaitingItems": {
+      "notStarted": "Not started",
+      "documentsToReview": "Documents to review",
+      "documentsOutstanding": "Required documents missing",
+      "clarification": "Clarification asked",
+      "answersChanged": "Answers changed since reviewed",
+      "returned": "Returned for action",
+      "eligibilityApproval": "Decisions awaiting approval",
+      "shortlistApproval": "Shortlist awaiting approval"
+    },
+    "documentItems": {
+      "incomplete": "Document check not complete",
+      "outstanding": "Required documents missing",
+      "toReview": "Documents to review",
+      "rejected": "Documents rejected"
+    }
   }
 }

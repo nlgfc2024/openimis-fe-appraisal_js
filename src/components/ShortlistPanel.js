@@ -16,15 +16,28 @@ import {
   TextInput,
   formatDateTimeFromISO,
   useGraphqlMutation,
+  useGraphqlQuery,
   useModulesManager,
   useTranslations,
 } from "@openimis/fe-core";
 import { useIntl } from "react-intl";
 
-import { SCORE_APPRAISALS_MUTATION, SHORTLIST_MUTATION } from "../actions";
-import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_SCORE, RIGHT_APPRAISAL_SHORTLIST } from "../constants";
+import { APPROVALS_QUERY, SCORE_APPRAISALS_MUTATION, SHORTLIST_MUTATION } from "../actions";
+import {
+  APPRAISAL_MODULE_NAME,
+  APPROVAL_SHORTLIST,
+  RIGHT_APPRAISAL_SCORE,
+  RIGHT_APPRAISAL_SHORTLIST,
+} from "../constants";
 import useAppraisalStyles from "../styles";
-import { refusalCode, shortlistRun } from "../util/appraisal";
+import {
+  describeShortlistGroups,
+  isAwaitingApproval,
+  latestApproval,
+  refusalCode,
+  shortlistRun,
+} from "../util/appraisal";
+import ApprovalStatus from "./ApprovalStatus";
 
 function ShortlistPanel({ programme, round, onChange, onDone }) {
   const classes = useAppraisalStyles();
@@ -40,6 +53,13 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
   const shortlistMutation = useGraphqlMutation(SHORTLIST_MUTATION);
   const run = shortlistRun((ranking || []).find((appraisal) => shortlistRun(appraisal)));
   const ready = !!programme && !!round;
+  const approvals = useGraphqlQuery(
+    APPROVALS_QUERY,
+    { programme, round, kind: APPROVAL_SHORTLIST },
+    { skip: !ready, keepStale: true },
+  );
+  const approval = latestApproval(approvals.data?.appraisalApprovals);
+  const awaiting = isAwaitingApproval(approval);
   useEffect(() => setDraft({ programme, round }), [programme, round]);
   // The round is applied when a field is left, not on every keystroke
   const apply = () => {
@@ -56,6 +76,7 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
         clientMutationLabel: formatMessageWithValues(label, { programme, round }),
       });
       onDone();
+      approvals.refetch();
     } catch (err) {
       const code = refusalCode(err);
       setError(code ? formatMessage(`refusal.${code}`) : String(err?.message || err));
@@ -103,7 +124,7 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
               fullWidth
               color="primary"
               variant="contained"
-              disabled={!ready || busy}
+              disabled={!ready || busy || awaiting}
               onClick={() => setConfirming(true)}
             >
               {formatMessage("action.shortlist")}
@@ -118,13 +139,24 @@ function ShortlistPanel({ programme, round, onChange, onDone }) {
           </Grid>
         )}
       </Grid>
+      {approval && (
+        <ApprovalStatus
+          approval={approval}
+          description={formatMessageWithValues("shortlist.proposed", {
+            shortlisted: approval.summary.shortlisted,
+            ranked: approval.summary.ranked,
+            groups: describeShortlistGroups(approval.summary.groups, formatMessage("shortlist.overall")),
+          })}
+        />
+      )}
       <Divider />
       {run ? (
         <>
           <Typography variant="body2" className={`${classes.section} ${classes.muted}`}>
-            {formatMessageWithValues("shortlist.lastRun", {
+            {formatMessageWithValues(run.approved_by ? "shortlist.lastRunApproved" : "shortlist.lastRun", {
               user: run.by,
               date: formatDateTimeFromISO(modulesManager, intl, run.at),
+              approver: run.approved_by,
             })}
           </Typography>
           <Table

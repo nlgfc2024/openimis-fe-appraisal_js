@@ -9,7 +9,12 @@ const {
   isScoringOpen,
   scoreProblem,
   shortlistRun,
+  countsByKey,
   describeChanges,
+  describeShortlistGroups,
+  humanize,
+  isAwaitingApproval,
+  latestApproval,
   isScreeningOpen,
   parseJson,
   previewDecision,
@@ -153,4 +158,30 @@ test("document reviews and returns", () => {
     { label: "Statement", status: "OUTSTANDING" },
     { label: "Other", status: "REJECTED" },
   ]);
+});
+
+test("approvals and report helpers", () => {
+  assert.strictEqual(latestApproval([]), null);
+  const approval = latestApproval([
+    { status: "PENDING", summary: '{"shortlisted": 2}' },
+    { status: "REJECTED", summary: "{}" },
+  ]);
+  assert.deepStrictEqual(approval.summary, { shortlisted: 2 });
+  assert.strictEqual(isAwaitingApproval(approval), true);
+  assert.strictEqual(isAwaitingApproval({ status: "APPROVED" }), false);
+  assert.strictEqual(isAwaitingApproval(null), false);
+  assert.strictEqual(
+    describeShortlistGroups(
+      [
+        { group: "Blantyre", ranked: 2, shortlisted: 1 },
+        { group: null, ranked: 3, shortlisted: 3 },
+      ],
+      "All",
+    ),
+    "Blantyre 1 of 2, All 3 of 3",
+  );
+  assert.deepStrictEqual(countsByKey([{ key: "SCORED", count: 3 }]), { SCORED: 3 });
+  assert.deepStrictEqual(countsByKey(null), {});
+  assert.strictEqual(humanize("digital_ict"), "Digital ict");
+  assert.strictEqual(humanize(""), "");
 });

@@ -1,5 +1,6 @@
 import {
   ANSWER_FIELD_COMMENT,
+  APPROVAL_PENDING,
   ANSWER_FIELD_EVIDENCE,
   ANSWER_FIELD_POINTS,
   ANSWER_FIELD_RESULT,
@@ -186,4 +187,31 @@ export function documentProblems(documents) {
   return (documents || [])
     .filter((doc) => doc.status === DOCUMENT_REJECTED || (doc.required && doc.status !== DOCUMENT_VERIFIED))
     .map((doc) => ({ label: doc.label, status: doc.status }));
+}
+
+/** The latest approval of a list (newest first from the backend), with its summary read. */
+export function latestApproval(approvals) {
+  const approval = (approvals || [])[0];
+  return approval ? { ...approval, summary: parseJson(approval.summary) } : null;
+}
+
+/** Whether a change is awaiting a supervisor. */
+export function isAwaitingApproval(approval) {
+  return approval?.status === APPROVAL_PENDING;
+}
+
+/** Shortlist groups as one line, e.g. "Blantyre 1 of 2, Zomba 1 of 1"; overall is the label for no city. */
+export function describeShortlistGroups(groups, overall) {
+  return (groups || []).map((group) => `${group.group ?? overall} ${group.shortlisted} of ${group.ranked}`).join(", ");
+}
+
+/** Report counts [{key, count}] as {key: count}. */
+export function countsByKey(counts) {
+  return Object.fromEntries((counts || []).map(({ key, count }) => [key, count]));
+}
+
+/** An application's coded answer for display, e.g. "digital_ict" as "Digital ict". */
+export function humanize(value) {
+  const text = String(value ?? "").replace(/_/g, " ").trim();
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : "";
 }
