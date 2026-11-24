@@ -7,7 +7,14 @@ import messages_en from "./translations/en.json";
 import reducer from "./reducer";
 import AppraisalsPage from "./pages/AppraisalsPage";
 import AppraisalPage from "./pages/AppraisalPage";
-import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_VIEW, ROUTE_APPRAISAL, ROUTE_APPRAISALS } from "./constants";
+import ShortlistPage from "./pages/ShortlistPage";
+import {
+  APPRAISAL_MODULE_NAME,
+  RIGHT_APPRAISAL_VIEW,
+  ROUTE_APPRAISAL,
+  ROUTE_APPRAISALS,
+  ROUTE_SHORTLIST,
+} from "./constants";
 import { configurationGate } from "./util/configuration";
 
 const DEFAULT_CONFIG = {
@@ -16,6 +23,7 @@ const DEFAULT_CONFIG = {
   "core.Router": [
     { path: ROUTE_APPRAISALS, component: AppraisalsPage },
     { path: `${ROUTE_APPRAISAL}/:appraisal_uuid`, component: AppraisalPage },
+    { path: ROUTE_SHORTLIST, component: ShortlistPage },
   ],
   "socialProtection.MainMenu": [
     {
@@ -29,6 +37,7 @@ const DEFAULT_CONFIG = {
   refs: [
     { key: `${APPRAISAL_MODULE_NAME}.route.appraisals`, ref: ROUTE_APPRAISALS },
     { key: `${APPRAISAL_MODULE_NAME}.route.appraisal`, ref: ROUTE_APPRAISAL },
+    { key: `${APPRAISAL_MODULE_NAME}.route.shortlist`, ref: ROUTE_SHORTLIST },
   ],
 };
 

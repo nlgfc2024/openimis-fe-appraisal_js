@@ -16,18 +16,18 @@ import {
 
 import {
   ANSWER_ITEM_MUTATION,
+  ANSWER_SCORE_MUTATION,
   APPRAISAL_QUERY,
   DECIDE_ELIGIBILITY_MUTATION,
   REOPEN_APPRAISAL_MUTATION,
+  SCORE_APPRAISALS_MUTATION,
 } from "../actions";
 import AnswerItemDialog from "../components/AnswerItemDialog";
 import AppraisalHeadPanel from "../components/AppraisalHeadPanel";
 import AppraisalTabPanel from "../components/AppraisalTabPanel";
 import ReopenDialog from "../components/ReopenDialog";
-import {
-  APPRAISAL_MODULE_NAME,
-  RIGHT_APPRAISAL_VIEW,
-} from "../constants";
+import ScoreDialog from "../components/ScoreDialog";
+import { APPRAISAL_MODULE_NAME, RIGHT_APPRAISAL_VIEW } from "../constants";
 import useAppraisalStyles from "../styles";
 import { isAppraisalConfigured } from "../util/configuration";
 import { refusalCode } from "../util/appraisal";
@@ -44,6 +44,9 @@ function AppraisalPage() {
   const [decisionError, setDecisionError] = useState(null);
   const [reopening, setReopening] = useState(false);
   const [reopenError, setReopenError] = useState(null);
+  const [scoring, setScoring] = useState(null);
+  const [scoreError, setScoreError] = useState(null);
+  const [rescoreError, setRescoreError] = useState(null);
 
   const { isLoading, error, data, refetch } = useGraphqlQuery(
     APPRAISAL_QUERY,
@@ -53,6 +56,8 @@ function AppraisalPage() {
   const answerMutation = useGraphqlMutation(ANSWER_ITEM_MUTATION);
   const decideMutation = useGraphqlMutation(DECIDE_ELIGIBILITY_MUTATION);
   const reopenMutation = useGraphqlMutation(REOPEN_APPRAISAL_MUTATION);
+  const scoreMutation = useGraphqlMutation(ANSWER_SCORE_MUTATION);
+  const rescoreMutation = useGraphqlMutation(SCORE_APPRAISALS_MUTATION);
 
   if (!rights.includes(RIGHT_APPRAISAL_VIEW) || !isAppraisalConfigured(modulesManager)) return null;
   const appraisal = data?.appraisal?.edges?.[0]?.node;
@@ -60,6 +65,8 @@ function AppraisalPage() {
   // What the user may do now comes from the backend, worked out by the same rules as the mutations
   const canScreen = !!appraisal?.canScreen;
   const canReopen = !!appraisal?.canReopen;
+  const canScore = !!appraisal?.canScore;
+  const canRescore = !!appraisal?.canRescore;
   const refusal = (err) => {
     const code = refusalCode(err);
     return code ? formatMessage(`refusal.${code}`) : String(err?.message || err);
@@ -93,6 +100,38 @@ function AppraisalPage() {
       refetch();
     } catch (err) {
       setDecisionError(refusal(err));
+    }
+  };
+
+  const saveScore = async (score) => {
+    setScoreError(null);
+    try {
+      await scoreMutation.mutate({
+        id: scoring.uuid,
+        value: String(score.value).trim(),
+        evidence: score.evidence,
+        comment: score.comment,
+        clientMutationLabel: formatMessageWithValues("mutation.score", { item: scoring.label, applicant }),
+      });
+      setScoring(null);
+      refetch();
+    } catch (err) {
+      setScoreError(refusal(err));
+    }
+  };
+
+  const rescore = async () => {
+    setRescoreError(null);
+    try {
+      await rescoreMutation.mutate({
+        programme: appraisal.programme,
+        round: appraisal.round,
+        ids: [appraisal.uuid],
+        clientMutationLabel: formatMessageWithValues("mutation.rescore", { applicant }),
+      });
+      refetch();
+    } catch (err) {
+      setRescoreError(refusal(err));
     }
   };
 
@@ -140,8 +179,14 @@ function AppraisalPage() {
           onDecide={decide}
           deciding={decideMutation.isLoading}
           decisionError={decisionError}
+          canScore={canScore}
+          canRescore={canRescore}
+          onScore={setScoring}
+          onRescore={rescore}
+          rescoring={rescoreMutation.isLoading}
         />
       )}
+      {rescoreError && <ProgressOrError error={rescoreError} />}
       <AnswerItemDialog
         item={answering}
         open={!!answering}
@@ -152,6 +197,17 @@ function AppraisalPage() {
           setAnswerError(null);
         }}
         onSave={saveAnswer}
+      />
+      <ScoreDialog
+        item={scoring}
+        open={!!scoring}
+        saving={scoreMutation.isLoading}
+        error={scoreError}
+        onCancel={() => {
+          setScoring(null);
+          setScoreError(null);
+        }}
+        onSave={saveScore}
       />
       <ReopenDialog
         open={reopening}

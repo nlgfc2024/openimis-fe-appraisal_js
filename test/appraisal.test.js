@@ -3,12 +3,21 @@ const assert = require("node:assert/strict");
 
 const {
   answerProblem,
+  groupLabel,
+  shortlistGroup,
+  formatPoints,
+  scoreProblem,
+  shortlistRun,
   describeChanges,
-  lastReopening,
   parseJson,
   proposal,
   refusalCode,
+  awaitingPoints,
+  shortlistClosed,
+  lastReopening,
 } = require("../src/util/appraisal");
+
+const item = (key, result, extra = {}) => ({ key, result, basisChanged: false, ...extra });
 
 test("answerProblem mirrors the backend rules", () => {
   assert.strictEqual(answerProblem({}), "result");
@@ -40,6 +49,50 @@ test("parseJson and describeChanges", () => {
     { field: "basis", old: { a: 1 }, new: { a: 2 } },
   ]);
   assert.deepStrictEqual(describeChanges(changes), ["officer_result: — → YES", 'basis: {"a":1} → {"a":2}']);
+});
+
+test("scoreProblem asks for a value and the evidence", () => {
+  assert.strictEqual(scoreProblem({ value: " ", evidence: "x" }), "value");
+  assert.strictEqual(scoreProblem({ value: null, evidence: "x" }), "value");
+  assert.strictEqual(scoreProblem({ value: "stable", evidence: " " }), "evidence");
+  assert.strictEqual(scoreProblem({ value: "30", evidence: "Registration certificate" }), null);
+});
+
+test("the shortlist group comes from the backend and reads as a label", () => {
+  assert.strictEqual(shortlistGroup({ shortlistGroup: "blantyre" }), "blantyre");
+  assert.strictEqual(shortlistGroup({}), null);
+  assert.strictEqual(groupLabel("blantyre"), "Blantyre");
+  assert.strictEqual(groupLabel("fast_track"), "Fast track");
+  assert.strictEqual(groupLabel(null), null);
+});
+
+test("shortlistRun and formatPoints", () => {
+  const run = { by: "Admin", at: "2026-11-24T10:00:00", groups: [{ group: "Zomba", places: 104 }] };
+  assert.deepStrictEqual(shortlistRun({ jsonExt: JSON.stringify({ shortlist: run }) }), run);
+  assert.strictEqual(shortlistRun({ jsonExt: "{}" }), null);
+  assert.strictEqual(formatPoints("31.00"), "31");
+  assert.strictEqual(formatPoints("12.50"), "12.5");
+  assert.strictEqual(formatPoints(null), null);
+});
+
+test("awaitingPoints lists the score items without points that count", () => {
+  const items = [
+    { key: "a", points: "15.00" },
+    { key: "b", points: null },
+    { key: "c" },
+    { key: "d", points: "0.00" },
+  ];
+  assert.deepStrictEqual(awaitingPoints(items).map((item) => item.key), ["b", "c"]);
+  assert.deepStrictEqual(awaitingPoints(undefined), []);
+});
+
+test("shortlistClosed reads who closed the round", () => {
+  assert.deepStrictEqual(shortlistClosed({ groups: [], closed: { by: "a", at: "2026-11-24T12:00:00" } }), {
+    by: "a",
+    at: "2026-11-24T12:00:00",
+  });
+  assert.strictEqual(shortlistClosed({ groups: [] }), null);
+  assert.strictEqual(shortlistClosed(null), null);
 });
 
 test("lastReopening reads the latest reopening from jsonExt", () => {
