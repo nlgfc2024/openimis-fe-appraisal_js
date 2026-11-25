@@ -1,0 +1,148 @@
+export const APPRAISAL_MODULE_NAME = "appraisal";
+
+// Backend rights (appraisal module, 220000 block)
+export const RIGHT_APPRAISAL_VIEW = 220001;
+export const RIGHT_APPRAISAL_SCREEN = 220002;
+export const RIGHT_APPRAISAL_SCORE = 220003;
+export const RIGHT_APPRAISAL_SHORTLIST = 220004;
+export const RIGHT_APPRAISAL_REVIEW_DOCUMENTS = 220005;
+export const RIGHT_APPRAISAL_RETURN = 220006;
+export const RIGHT_APPRAISAL_APPROVE = 220007;
+
+// The backend GraphQL connection of appraisals
+export const GQL_APPRAISAL_QUERY = "appraisal";
+
+export const ROUTE_APPRAISALS = "appraisals";
+export const ROUTE_APPRAISAL = "appraisals/appraisal";
+export const ROUTE_REPORTS = "appraisals/reports";
+export const ROUTE_SHORTLIST = "appraisals/shortlist";
+
+// Values of the backend appraisal models (Appraisal, AppraisalItem)
+export const RESULT_YES = "YES";
+export const RESULT_NO = "NO";
+export const RESULT_PENDING = "PENDING";
+export const RESULTS = [RESULT_YES, RESULT_NO, RESULT_PENDING];
+
+export const ITEM_KIND_ELIGIBILITY = "ELIGIBILITY";
+export const ITEM_KIND_SCORE = "SCORE";
+
+export const ELIGIBILITY_ELIGIBLE = "ELIGIBLE";
+export const ELIGIBILITY_INELIGIBLE = "INELIGIBLE";
+export const ELIGIBILITY_CLARIFICATION = "CLARIFICATION";
+export const ELIGIBILITIES = [ELIGIBILITY_ELIGIBLE, ELIGIBILITY_INELIGIBLE, ELIGIBILITY_CLARIFICATION];
+
+export const STATUS_RECEIVED = "RECEIVED";
+export const STATUS_DOCUMENT_CHECK = "DOCUMENT_CHECK";
+export const STATUS_DESK_SCREENING = "DESK_SCREENING";
+export const STATUS_ELIGIBLE = "ELIGIBLE";
+export const STATUS_INELIGIBLE = "INELIGIBLE";
+export const STATUS_SCORED = "SCORED";
+export const STATUS_SHORTLISTED = "SHORTLISTED";
+export const STATUS_NOT_SHORTLISTED = "NOT_SHORTLISTED";
+export const STATUS_RETURNED = "RETURNED";
+export const STATUSES = [
+  STATUS_RECEIVED,
+  STATUS_DOCUMENT_CHECK,
+  STATUS_DESK_SCREENING,
+  STATUS_ELIGIBLE,
+  STATUS_INELIGIBLE,
+  STATUS_SCORED,
+  STATUS_SHORTLISTED,
+  STATUS_NOT_SHORTLISTED,
+  STATUS_RETURNED,
+];
+// Statuses that are ranked for the shortlist (backend appraisal.scoring.RANKED)
+export const RANKED_STATUSES = [STATUS_SCORED, STATUS_SHORTLISTED, STATUS_NOT_SHORTLISTED];
+// Statuses in which items can be answered and a decision recorded (backend appraisal.review.OPEN_STATUSES)
+// The statuses the overview counts as "in screening" (a filter for its card, not a screening rule)
+export const OPEN_STATUSES = [STATUS_RECEIVED, STATUS_DOCUMENT_CHECK, STATUS_DESK_SCREENING];
+export const JSON_EXT_REOPENED = "reopened";
+
+// History entries about the appraisal itself rather than one of its items
+export const HISTORY_SUBJECT_APPRAISAL = "appraisal";
+export const HISTORY_SUBJECT_RETURN = "return";
+export const HISTORY_SUBJECT_DOCUMENT_PREFIX = "document:";
+// History fields left out: internal JSON, and users already shown in the "By" column
+export const HISTORY_HIDDEN_FIELDS = [
+  "config_snapshot",
+  "json_ext",
+  "proposal",
+  "summary",
+  "task",
+  "requested_by",
+  "resubmitted_by",
+  "reviewed_by",
+  "decided_by",
+];
+// History fields whose values are codes, with the translation group naming them
+export const HISTORY_CODED_FIELDS = {
+  kind: "approvalKind",
+  status: "status",
+  previous_status: "status",
+  stage: "stage",
+  eligibility: "eligibility",
+};
+
+// Document check statuses (backend appraisal.models.DocumentReview.Status)
+export const DOCUMENT_SUBMITTED = "SUBMITTED";
+export const DOCUMENT_VERIFIED = "VERIFIED";
+export const DOCUMENT_REJECTED = "REJECTED";
+export const DOCUMENT_OUTSTANDING = "OUTSTANDING";
+
+// Answer fields an officer must fill (util/appraisal.answerProblem)
+export const ANSWER_FIELD_RESULT = "result";
+export const ANSWER_FIELD_EVIDENCE = "evidence";
+export const ANSWER_FIELD_COMMENT = "comment";
+export const ANSWER_FIELD_VALUE = "value";
+export const ANSWER_FIELD_REASON = "reason";
+export const ANSWER_FIELD_ACTION = "actionRequired";
+export const DOCUMENT_FIELD_STATUS = "status";
+
+// Tabs of the appraisal page and the list's summary cards (also their translation keys)
+export const TAB_CHECKLIST = "checklist";
+export const TAB_APPLICATION = "application";
+export const TAB_DOCUMENTS = "documents";
+export const TAB_SCORE = "score";
+export const TAB_RETURNS = "returns";
+export const TAB_HISTORY = "history";
+export const APPRAISAL_TABS = [TAB_CHECKLIST, TAB_SCORE, TAB_APPLICATION, TAB_DOCUMENTS, TAB_RETURNS, TAB_HISTORY];
+export const SUMMARY_CARDS = ["total", "screening", "eligible", "clarification", "ineligible", "review"];
+
+// Supervisor approval (backend appraisal.approvals), given in tasks_management
+export const APPROVAL_SHORTLIST = "SHORTLIST";
+export const APPROVAL_ELIGIBILITY = "ELIGIBILITY";
+export const APPROVAL_PENDING = "PENDING";
+export const APPROVAL_APPROVED = "APPROVED";
+export const APPROVAL_REJECTED = "REJECTED";
+export const APPROVAL_FAILED = "FAILED";
+export const APPROVAL_TASK_SOURCE = "appraisal";
+export const TASK_ROUTE_REF = "tasksManagement.route.task";
+export const HISTORY_SUBJECT_APPROVAL = "approval";
+
+// The report's "awaiting action" counts, in the order shown (backend appraisal.reports)
+export const REPORT_AWAITING = [
+  "notStarted",
+  "documentsToReview",
+  "documentsOutstanding",
+  "clarification",
+  "answersChanged",
+  "returned",
+  "eligibilityApproval",
+  "shortlistApproval",
+];
+export const REPORT_DOCUMENTS = ["incomplete", "outstanding", "toReview", "rejected"];
+export const REPORT_CITY_COLUMNS = ["total", "eligible", "ineligible", "clarification", "scored", "shortlisted"];
+
+// msr_etl components shown on the appraisal page
+export const REF_KOBO_APPLICATIONS = "msrEtl.KoboApplications";
+export const REF_APPLICANT_DOCUMENTS = "msrEtl.ApplicantDocuments";
+
+export const EMPTY_VALUE = "\u2014";
+
+// The location type of a city, which the shortlist splits places by (backend shortlist.location_type default)
+// Ranked appraisals shown per page on the shortlist screen
+export const RANKING_PAGE_SIZE = 50;
+
+export const DEFAULT_PAGE_SIZE = 10;
+export const ROWS_PER_PAGE_OPTIONS = [10, 20, 50, 100];
+export const DEFAULT_DEBOUNCE_TIME = 500;
